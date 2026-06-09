@@ -7,8 +7,8 @@ const sidebarLinks = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
   { label: 'Bookings', path: '/admin/bookings', icon: <ClipboardList size={18} /> },
   { label: 'Test Catalog', path: '/admin/tests', icon: <FlaskConical size={18} /> },
-  { label: 'Prescriptions', path: '/admin/prescriptions', icon: <FileText size={18} /> },
-  { label: 'Notice Board', path: '/admin/notices', icon: <FileText size={18} /> }, // Could use Megaphone icon if available, but FileText is okay
+  { label: 'Notice Board', path: '/admin/notices', icon: <FileText size={18} /> },
+  { label: 'Settings', path: '/admin/settings', icon: <ClipboardList size={18} /> },
 ];
 
 export default function AdminLayout() {

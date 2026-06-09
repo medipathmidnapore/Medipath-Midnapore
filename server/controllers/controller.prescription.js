@@ -1,23 +1,16 @@
 import cloudinary from '../config/config.cloudinary.js';
-import Prescription from '../models/model.prescription.js';
-import Booking from '../models/model.booking.js';
 import { Readable } from 'stream';
 
 /**
  * POST /api/prescriptions/upload
  * Accepts multipart/form-data with a file field named 'prescription'.
  * Streams directly to Cloudinary and saves the secure URL.
+ * Does NOT save to local DB anymore, just returns URL for frontend to use in booking proxy.
  */
 export const uploadPrescription = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file provided.' });
-    }
-
-    const { patientName, mobileNumber, bookingId, email } = req.body;
-
-    if (!patientName || !mobileNumber) {
-      return res.status(400).json({ success: false, message: 'Patient Name and Mobile Number are required.' });
     }
 
     // Determine resource type
@@ -41,21 +34,6 @@ export const uploadPrescription = async (req, res) => {
       readable.pipe(uploadStream);
     });
 
-    // Save standalone prescription
-    const prescriptionRecord = await Prescription.create({
-      patientName,
-      mobileNumber,
-      email: email || '',
-      prescriptionUrl: uploadResult.secure_url,
-    });
-
-    // If a bookingId was provided (from a booking flow), also link it to the booking
-    if (bookingId) {
-      await Booking.findByIdAndUpdate(bookingId, {
-        prescriptionUrl: uploadResult.secure_url,
-      });
-    }
-
     res.status(200).json({
       success: true,
       message: 'Prescription uploaded successfully.',
@@ -70,13 +48,10 @@ export const uploadPrescription = async (req, res) => {
 
 /**
  * GET /api/prescriptions
- * Fetch all standalone prescriptions (Admin Only)
+ * Fetch all standalone prescriptions
+ * Now removed since we don't store them locally.
  */
 export const getAllPrescriptions = async (req, res) => {
-  try {
-    const prescriptions = await Prescription.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: prescriptions });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  res.status(403).json({ success: false, message: 'Prescriptions are managed by the Main Server.' });
 };
+

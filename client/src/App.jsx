@@ -5,7 +5,6 @@ import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import BookingPage from './pages/BookingPage';
 import ReportsPage from './pages/ReportsPage';
-import UploadPage from './pages/UploadPage';
 import TestsPage from './pages/TestsPage';
 import NoticePage from './pages/NoticePage';
 import { AuthProvider } from './context/AuthContext';
@@ -14,8 +13,8 @@ import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminBookings from './pages/admin/AdminBookings';
 import AdminTests from './pages/admin/AdminTests';
-import AdminPrescriptions from './pages/admin/AdminPrescriptions';
 import AdminNotices from './pages/admin/AdminNotices';
+import AdminSettings from './pages/admin/AdminSettings';
 import { useLocation } from 'react-router-dom';
 import './index.css';
 
@@ -32,7 +31,6 @@ function AppContent() {
           <Route path="/" element={<HomePage />} />
           <Route path="/book" element={<BookingPage />} />
           <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/upload" element={<UploadPage />} />
           <Route path="/tests" element={<TestsPage />} />
           <Route path="/notices" element={<NoticePage />} />
 
@@ -42,8 +40,8 @@ function AppContent() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="tests" element={<AdminTests />} />
-            <Route path="prescriptions" element={<AdminPrescriptions />} />
             <Route path="notices" element={<AdminNotices />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
         </Routes>
       </div>

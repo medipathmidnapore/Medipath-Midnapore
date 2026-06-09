@@ -66,13 +66,20 @@ export default function AdminBookings() {
                   ))}
                 </ul>
                 <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '0.5rem', display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
-                  <span style={{ color: 'var(--color-text-muted)' }}>Payment Mode</span>
-                  <span style={{ fontWeight: 600 }}>{b.paymentMode === 'full' ? 'Full Paid' : '50% Advance'}</span>
+                  <span style={{ color: 'var(--color-text-muted)' }}>Payment</span>
+                  <span style={{ fontWeight: 600, color: 'var(--color-warning)' }}>Pay at Clinic</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', fontWeight: 700, marginTop: '0.25rem' }}>
                   <span>Total Amount</span>
                   <span style={{ color: 'var(--color-primary)' }}>₹{b.totalAmount}</span>
                 </div>
+                {b.prescriptionUrl && (
+                  <div style={{ marginTop: '0.75rem', borderTop: '1px solid var(--color-border)', paddingTop: '0.5rem' }}>
+                    <a href={b.prescriptionUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.8125rem', color: 'var(--color-primary)', textDecoration: 'underline', fontWeight: 600 }}>
+                      View Prescription Image
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           ))}

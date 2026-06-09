@@ -9,7 +9,6 @@ const navLinks = [
   { label: 'Tests & Pricing', path: '/tests' },
   { label: 'Book Collection', path: '/book' },
   { label: 'Download Reports', path: '/reports' },
-  { label: 'Upload Prescription', path: '/upload' },
 ];
 
 export default function Navbar() {

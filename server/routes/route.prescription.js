@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { uploadPrescription, getAllPrescriptions } from '../controllers/controller.prescription.js';
-import { verifyAdmin } from '../middleware/middleware.auth.js';
+import { uploadPrescription } from '../controllers/controller.prescription.js';
 
 // Memory storage — buffer is streamed directly to Cloudinary, nothing saved to disk
 const storage = multer.memoryStorage();
@@ -22,8 +21,5 @@ const router = Router();
 
 // POST /api/prescriptions/upload
 router.post('/upload', upload.single('prescription'), uploadPrescription);
-
-// GET /api/prescriptions (Admin only)
-router.get('/', verifyAdmin, getAllPrescriptions);
 
 export default router;

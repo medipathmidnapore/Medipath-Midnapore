@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, FileDown, Lock, AlertTriangle, CheckCircle, QrCode, Phone, FileText } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { Search, FileDown, Lock, AlertTriangle, CheckCircle, QrCode, Phone, FileText, Clock } from 'lucide-react';
 import { lookupReport } from '../services/api';
-
-const UPI_ID = import.meta.env.VITE_UPI_ID || 'medipath@upi';
 
 export default function ReportDownload() {
   const [billNo, setBillNo] = useState('');
@@ -25,19 +22,17 @@ export default function ReportDownload() {
 
     try {
       const res = await lookupReport({ billNo: billNo.trim(), mobile: mobile.trim() });
-      setReport(res.data.data);
+      setReport(res.data.data); // Contains status: 'ready' | 'wait_normal' | 'wait_payment'
       setStatus('found');
     } catch (err) {
-      if (err.message?.includes('No report found')) {
+      if (err.message?.includes('No report found') || err.response?.status === 404) {
         setStatus('not_found');
       } else {
-        setError(err.message);
+        setError(err.message || 'Failed to fetch report.');
         setStatus('error');
       }
     }
   };
-
-  const upiLink = `upi://pay?pa=${UPI_ID}&pn=Medipath+Diagnostics&am=${report?.balanceDue || ''}&cu=INR&tn=Report+${billNo}`;
 
   return (
     <div style={{ maxWidth: '520px', margin: '0 auto' }}>
@@ -172,9 +167,9 @@ export default function ReportDownload() {
             onMouseLeave={(e) => { if (status !== 'loading') { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 20px -6px rgba(26,86,219,0.5)'; } }}
           >
             {status === 'loading' ? (
-              <><span className="spinner" style={{ width: '1.25rem', height: '1.25rem', borderTopColor: 'white' }} /> Fetching Secure Data...</>
+              <><span className="spinner" style={{ width: '1.25rem', height: '1.25rem', borderTopColor: 'white' }} /> Fetching Status...</>
             ) : (
-              <>Access Report <Search size={18} style={{ marginLeft: '0.25rem' }} /></>
+              <>Check Status <Search size={18} style={{ marginLeft: '0.25rem' }} /></>
             )}
           </button>
         </form>
@@ -195,8 +190,7 @@ export default function ReportDownload() {
             <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-text)' }}>Report Not Found</h3>
             <p style={{ fontSize: '0.9375rem' }}>
               We couldn't find a report matching your Bill No. and mobile number. 
-              Please double-check and try again, or call us at{' '}
-              <a href="tel:+919083276651" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>+91 90832 76651</a>.
+              Please double-check and try again.
             </p>
           </motion.div>
         )}
@@ -208,18 +202,33 @@ export default function ReportDownload() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
           >
-            {/* Patient Info Card */}
-            <div className="card" style={{ padding: '1.25rem', marginBottom: '1rem', background: 'var(--color-bg-alt)' }}>
-              <p style={{ fontWeight: 700, color: 'var(--color-text)', fontSize: '1.0625rem', marginBottom: '0.25rem' }}>
-                {report.patientName || 'Patient'}
-              </p>
-              <p style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-                Bill No: <strong>{report.billNo}</strong>
-              </p>
-            </div>
+            {/* STATE 1: WAIT NORMAL */}
+            {report.status === 'wait_normal' && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="card"
+                style={{ padding: '2rem', textAlign: 'center', border: '2px solid #fde68a' }}
+              >
+                <div
+                  style={{
+                    width: '4rem', height: '4rem', borderRadius: '50%',
+                    background: '#fef3c7',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 1.25rem',
+                  }}
+                >
+                  <Clock size={28} color="#d97706" />
+                </div>
+                <h3 style={{ color: '#b45309', marginBottom: '0.5rem' }}>Processing</h3>
+                <p style={{ marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>
+                  {report.message || 'Your report is still being processed. Please check back later.'}
+                </p>
+              </motion.div>
+            )}
 
-            {/* LOCKED — Payment Due */}
-            {report.isLocked ? (
+            {/* STATE 2: WAIT PAYMENT */}
+            {report.status === 'wait_payment' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -237,48 +246,28 @@ export default function ReportDownload() {
                   <Lock size={28} color="var(--color-error)" />
                 </div>
                 <h3 style={{ color: 'var(--color-error)', marginBottom: '0.5rem' }}>Payment Due</h3>
-                <p style={{ marginBottom: '0.5rem' }}>
-                  Your report is locked due to an outstanding payment.
+                <p style={{ marginBottom: '1rem', color: 'var(--color-text-muted)' }}>
+                  Your report is ready but requires payment to unlock.
                 </p>
-                <div
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                    padding: '0.5rem 1.25rem',
-                    background: 'var(--color-error-bg)',
-                    borderRadius: 'var(--radius-full)',
-                    color: 'var(--color-error)',
-                    fontWeight: 800, fontSize: '1.25rem',
-                    marginBottom: '1.75rem',
-                  }}
-                >
-                  Balance Due: ₹{report.balanceDue}
-                </div>
 
-                {/* UPI QR */}
-                <div
-                  style={{
-                    background: 'white',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '1.5rem',
-                    display: 'inline-block',
-                    marginBottom: '1.25rem',
-                  }}
-                >
-                  <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
-                    <QrCode size={16} color="var(--color-primary)" />
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text)' }}>Scan to Pay via UPI</span>
+                {report.qrSrc && (
+                  <div
+                    style={{
+                      background: 'white',
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '1.5rem',
+                      display: 'inline-block',
+                      marginBottom: '1.25rem',
+                    }}
+                  >
+                    <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+                      <QrCode size={16} color="var(--color-primary)" />
+                      <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text)' }}>Scan to Pay</span>
+                    </div>
+                    <img src={report.qrSrc} alt="Payment QR" style={{ width: '180px', height: '180px', display: 'block', margin: '0 auto' }} />
                   </div>
-                  <QRCodeSVG
-                    value={upiLink}
-                    size={180}
-                    bgColor="#ffffff"
-                    fgColor="#0f172a"
-                    level="M"
-                    includeMargin={false}
-                  />
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.75rem' }}>{UPI_ID}</p>
-                </div>
+                )}
 
                 <div
                   style={{
@@ -289,14 +278,16 @@ export default function ReportDownload() {
                 >
                   <Phone size={16} style={{ flexShrink: 0, marginTop: '0.1rem', color: 'var(--color-warning)' }} />
                   <p style={{ fontSize: '0.875rem', color: '#92400e', margin: 0 }}>
-                    After payment, please call us at{' '}
-                    <a href="tel:+919083276651" style={{ color: 'var(--color-warning)', fontWeight: 700 }}>+91 90832 76651</a>{' '}
-                    with your transaction ID to unlock your report.
+                    After payment, please call the clinic at{' '}
+                    <a href={`tel:${report.phone || '+919083276651'}`} style={{ color: 'var(--color-warning)', fontWeight: 700 }}>{report.phone || '+91 90832 76651'}</a>{' '}
+                    with your transaction details to unlock your report.
                   </p>
                 </div>
               </motion.div>
-            ) : (
-              /* UNLOCKED — Download Available */
+            )}
+
+            {/* STATE 3: READY */}
+            {report.status === 'ready' && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}

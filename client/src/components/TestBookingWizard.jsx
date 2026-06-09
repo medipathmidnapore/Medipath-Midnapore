@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Phone, MapPin, Search, Plus, Minus, Check, ChevronRight,
-  ChevronLeft, FlaskConical, CreditCard, Wallet, CheckCircle, AlertCircle, Loader2
+  ChevronLeft, FlaskConical, CheckCircle, AlertCircle, Loader2, Upload, FileText, X
 } from 'lucide-react';
-import { fetchTests, createBooking } from '../services/api';
+import { fetchTests, createBooking, uploadPrescription } from '../services/api';
 
-const STEPS = ['Patient Info', 'Select Tests', 'Review & Pay'];
+const STEPS = ['Patient Info', 'Tests & Prescription', 'Review & Confirm'];
 
 const initialForm = {
   patientName: '',
@@ -16,27 +16,32 @@ const initialForm = {
   address: '',
 };
 
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+const MAX_SIZE_MB = 10;
+
 export default function TestBookingWizard() {
   const [step, setStep] = useState(0);
   const [form, setForm] = useState(initialForm);
   const [errors, setErrors] = useState({});
 
-  // Step 2 — Tests
+  // Step 2 — Tests & Prescription
   const [searchQuery, setSearchQuery] = useState('');
   const [allTests, setAllTests] = useState([]);
   const [filteredTests, setFilteredTests] = useState([]);
   const [selectedTests, setSelectedTests] = useState([]);
   const [loadingTests, setLoadingTests] = useState(false);
 
-  // Step 3 — Payment
-  const [paymentMode, setPaymentMode] = useState('full');
+  const [prescriptionFile, setPrescriptionFile] = useState(null);
+  const [prescriptionPreview, setPrescriptionPreview] = useState(null);
+  const [dragging, setDragging] = useState(false);
+  const [fileError, setFileError] = useState('');
 
   // Submit
   const [submitStatus, setSubmitStatus] = useState('idle'); // idle | loading | success | error
   const [bookingResult, setBookingResult] = useState(null);
   const [submitError, setSubmitError] = useState('');
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  // Load tests when entering step 2
   useEffect(() => {
     if (step === 1 && allTests.length === 0) {
       loadTests();
@@ -50,7 +55,7 @@ export default function TestBookingWizard() {
       setAllTests(res.data.data);
       setFilteredTests(res.data.data);
     } catch {
-      // Show empty state
+      // Ignore errors silently for now
     } finally {
       setLoadingTests(false);
     }
@@ -80,10 +85,39 @@ export default function TestBookingWizard() {
   const isSelected = (id) => selectedTests.some((t) => t._id === id);
 
   const totalAmount = selectedTests.reduce((sum, t) => sum + t.price, 0);
-  const amountPaid = paymentMode === 'full' ? totalAmount : Math.ceil(totalAmount / 2);
-  const balanceDue = totalAmount - amountPaid;
 
-  // Step 1 Validation
+  // File Upload Handlers
+  const validateAndSetFile = (f) => {
+    if (!ALLOWED_TYPES.includes(f.type)) {
+      setFileError('Invalid file type. Please upload JPG, PNG, WEBP, or PDF only.');
+      return;
+    }
+    if (f.size > MAX_SIZE_MB * 1024 * 1024) {
+      setFileError(`File too large. Maximum size is ${MAX_SIZE_MB}MB.`);
+      return;
+    }
+    setPrescriptionFile(f);
+    setFileError('');
+    if (f.type.startsWith('image/')) {
+      setPrescriptionPreview(URL.createObjectURL(f));
+    } else {
+      setPrescriptionPreview(null);
+    }
+  };
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    setDragging(false);
+    const dropped = e.dataTransfer.files[0];
+    if (dropped) validateAndSetFile(dropped);
+  }, []);
+
+  const handleFileChange = (e) => {
+    const selected = e.target.files[0];
+    if (selected) validateAndSetFile(selected);
+  };
+
+  // Validation
   const validateStep1 = () => {
     const errs = {};
     if (!form.patientName.trim()) errs.patientName = 'Patient name is required.';
@@ -100,13 +134,35 @@ export default function TestBookingWizard() {
 
   const handleNext = () => {
     if (step === 0 && !validateStep1()) return;
-    if (step === 1 && selectedTests.length === 0) return;
+    if (step === 1 && selectedTests.length === 0 && !prescriptionFile) {
+      setFileError('Please select at least one test OR upload a prescription.');
+      return;
+    }
+    setFileError('');
     setStep((s) => s + 1);
   };
 
   const handleSubmit = async () => {
     setSubmitStatus('loading');
+    setSubmitError('');
     try {
+      let prescriptionUrl = '';
+
+      // Upload Prescription first if exists
+      if (prescriptionFile) {
+        const formData = new FormData();
+        formData.append('prescription', prescriptionFile);
+        formData.append('patientName', form.patientName);
+        formData.append('mobileNumber', form.mobile1);
+        if (form.email) formData.append('email', form.email);
+
+        const uploadRes = await uploadPrescription(formData, (progressEvent) => {
+          const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(pct);
+        });
+        prescriptionUrl = uploadRes.data.cloudinaryUrl;
+      }
+
       const payload = {
         patientName: form.patientName,
         email: form.email,
@@ -114,13 +170,14 @@ export default function TestBookingWizard() {
         mobile2: form.mobile2,
         address: form.address,
         tests: selectedTests.map((t) => ({ testId: t._id, name: t.name, price: t.price })),
-        paymentMode,
+        prescriptionUrl, // Attach to booking
       };
+
       const res = await createBooking(payload);
       setBookingResult(res.data.data);
       setSubmitStatus('success');
     } catch (err) {
-      setSubmitError(err.message);
+      setSubmitError(err.message || 'An error occurred during submission.');
       setSubmitStatus('error');
     }
   };
@@ -143,20 +200,20 @@ export default function TestBookingWizard() {
         >
           <CheckCircle size={44} color="var(--color-success)" />
         </div>
-        <h2 style={{ marginBottom: '0.75rem', color: 'var(--color-success)' }}>Booking Confirmed!</h2>
+        <h2 style={{ marginBottom: '0.75rem', color: 'var(--color-success)' }}>
+          {selectedTests.length > 0 && prescriptionFile ? 'Booking & Prescription Submitted!' :
+           prescriptionFile ? 'Prescription Uploaded!' : 'Booking Confirmed!'}
+        </h2>
         <p style={{ marginBottom: '1.5rem' }}>
-          Your home collection has been scheduled. Our team will call you shortly.
+          Your request has been received securely. Our team will contact you shortly.
         </p>
-        <div className="card" style={{ padding: '1.25rem', textAlign: 'left', marginBottom: '1.5rem' }}>
-          <p><strong>Booking ID:</strong> <span style={{ fontFamily: 'monospace', color: 'var(--color-primary)' }}>{bookingResult?.bookingId}</span></p>
-          <p><strong>Total:</strong> ₹{bookingResult?.totalAmount}</p>
-          <p><strong>Paid:</strong> ₹{bookingResult?.amountPaid}</p>
-          {bookingResult?.balanceDue > 0 && (
-            <p style={{ color: 'var(--color-error)' }}><strong>Balance Due:</strong> ₹{bookingResult?.balanceDue}</p>
-          )}
-        </div>
-        <button className="btn btn-outline" onClick={() => { setStep(0); setForm(initialForm); setSelectedTests([]); setSubmitStatus('idle'); setBookingResult(null); }}>
-          Book Another
+        
+        <button className="btn btn-outline" onClick={() => { 
+          setStep(0); setForm(initialForm); setSelectedTests([]); 
+          setPrescriptionFile(null); setPrescriptionPreview(null);
+          setSubmitStatus('idle'); setBookingResult(null); 
+        }}>
+          Done
         </button>
       </motion.div>
     );
@@ -281,17 +338,62 @@ export default function TestBookingWizard() {
             </div>
           )}
 
-          {/* ── Step 1: Test Selection ── */}
+          {/* ── Step 1: Test Selection & Prescription Upload ── */}
           {step === 1 && (
             <div>
-              <h3 style={{ marginBottom: '0.375rem' }}>Select Diagnostic Tests</h3>
+              <h3 style={{ marginBottom: '0.375rem' }}>Select Tests OR Upload Prescription</h3>
               <p style={{ marginBottom: '1.25rem', fontSize: '0.9375rem' }}>
-                Search and add tests. {selectedTests.length > 0 && (
-                  <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
-                    {selectedTests.length} selected · ₹{totalAmount}
-                  </span>
-                )}
+                You can select specific tests from the list, or simply upload your doctor's prescription.
               </p>
+
+              {/* Prescription Upload Zone */}
+              <div
+                className={`upload-zone ${dragging ? 'dragging' : ''}`}
+                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={handleDrop}
+                onClick={() => document.getElementById('prescription-input').click()}
+                style={{ marginBottom: '1.5rem', cursor: 'pointer', padding: '1.5rem', border: '2px dashed var(--color-border)', borderRadius: 'var(--radius)', textAlign: 'center' }}
+              >
+                <input
+                  id="prescription-input"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp,.pdf"
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                />
+                
+                {prescriptionFile ? (
+                  <div style={{ pointerEvents: 'none' }}>
+                    {prescriptionPreview ? (
+                      <img
+                        src={prescriptionPreview}
+                        alt="Preview"
+                        style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: 'var(--radius)', margin: '0 auto 0.5rem' }}
+                      />
+                    ) : (
+                      <FileText size={32} color="var(--color-primary)" style={{ margin: '0 auto 0.5rem' }} />
+                    )}
+                    <p style={{ fontWeight: 600 }}>{prescriptionFile.name}</p>
+                    <button className="btn btn-ghost" style={{ marginTop: '0.5rem', zIndex: 10 }} onClick={(e) => { e.stopPropagation(); setPrescriptionFile(null); setPrescriptionPreview(null); }}>
+                       Remove File
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload size={24} color="var(--color-primary)" style={{ margin: '0 auto 0.5rem' }} />
+                    <p style={{ fontWeight: 600 }}>Click or Drag to Upload Prescription</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>JPG, PNG, PDF (Max 10MB)</p>
+                  </>
+                )}
+              </div>
+
+              {/* OR Divider */}
+              <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0' }}>
+                <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+                <span style={{ padding: '0 1rem', fontSize: '0.875rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>AND / OR</span>
+                <div style={{ flex: 1, height: '1px', background: 'var(--color-border)' }} />
+              </div>
 
               {/* Search */}
               <div style={{ position: 'relative', marginBottom: '1.25rem' }}>
@@ -299,7 +401,7 @@ export default function TestBookingWizard() {
                 <input
                   id="test-search"
                   className="input"
-                  placeholder="Search tests by name or category..."
+                  placeholder="Search and add specific tests..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{ paddingLeft: '2.75rem' }}
@@ -311,7 +413,7 @@ export default function TestBookingWizard() {
                 style={{
                   border: '1px solid var(--color-border)',
                   borderRadius: 'var(--radius)',
-                  maxHeight: '320px',
+                  maxHeight: '260px',
                   overflowY: 'auto',
                 }}
               >
@@ -324,11 +426,6 @@ export default function TestBookingWizard() {
                   <div style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
                     <FlaskConical size={32} style={{ margin: '0 auto 0.75rem', opacity: 0.4 }} />
                     No tests found.
-                    {allTests.length === 0 && (
-                      <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-                        Tests are loaded from the lab system. Please check back later or contact us.
-                      </p>
-                    )}
                   </div>
                 ) : (
                   filteredTests.map((test) => {
@@ -353,7 +450,7 @@ export default function TestBookingWizard() {
                         <div>
                           <div style={{ fontWeight: 600, fontSize: '0.9375rem', color: 'var(--color-text)' }}>{test.name}</div>
                           <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginTop: '0.125rem' }}>
-                            {test.category} · {test.turnaroundHours}h turnaround
+                            {test.category}
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -378,15 +475,15 @@ export default function TestBookingWizard() {
                 )}
               </div>
 
-              {selectedTests.length === 0 && (
-                <p style={{ textAlign: 'center', fontSize: '0.875rem', color: 'var(--color-warning)', marginTop: '0.75rem' }}>
-                  Please select at least one test to continue.
-                </p>
+              {fileError && (
+                 <p style={{ textAlign: 'center', fontSize: '0.875rem', color: 'var(--color-error)', marginTop: '0.75rem' }}>
+                   {fileError}
+                 </p>
               )}
             </div>
           )}
 
-          {/* ── Step 2: Review & Pay ── */}
+          {/* ── Step 2: Review & Confirm ── */}
           {step === 2 && (
             <div>
               <h3 style={{ marginBottom: '1.75rem' }}>Review & Confirm</h3>
@@ -400,67 +497,61 @@ export default function TestBookingWizard() {
                 <p style={{ fontSize: '0.9rem' }}>📍 {form.address}</p>
               </div>
 
-              {/* Tests Summary */}
+              {/* Items Summary */}
               <div className="card" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
                 <h4 style={{ fontSize: '0.8rem', marginBottom: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Selected Tests ({selectedTests.length})
+                  Request Details
                 </h4>
-                {selectedTests.map((t) => (
-                  <div key={t._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--color-border-light)' }}>
-                    <span style={{ fontSize: '0.9375rem' }}>{t.name}</span>
-                    <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>₹{t.price}</span>
+                
+                {prescriptionFile && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: selectedTests.length > 0 ? '1rem' : '0' }}>
+                    <FileText size={16} color="var(--color-primary)" />
+                    <span style={{ fontWeight: 600 }}>Prescription Attached:</span> {prescriptionFile.name}
                   </div>
-                ))}
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', fontWeight: 700, fontSize: '1.0625rem' }}>
-                  <span>Total</span>
-                  <span style={{ color: 'var(--color-primary)' }}>₹{totalAmount}</span>
-                </div>
-              </div>
-
-              {/* Payment Toggle */}
-              <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '0.8rem', marginBottom: '1rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Payment Option
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {[
-                    { value: 'full', label: 'Pay Full Amount', sublabel: `₹${totalAmount}`, icon: <CreditCard size={18} /> },
-                    { value: 'advance50', label: 'Pay 50% Advance', sublabel: `₹${Math.ceil(totalAmount / 2)} now`, icon: <Wallet size={18} /> },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setPaymentMode(opt.value)}
-                      style={{
-                        padding: '1rem',
-                        borderRadius: 'var(--radius)',
-                        border: `2px solid ${paymentMode === opt.value ? 'var(--color-primary)' : 'var(--color-border)'}`,
-                        background: paymentMode === opt.value ? 'var(--color-primary-50)' : 'transparent',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition: 'all var(--transition)',
-                        fontFamily: 'inherit',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: paymentMode === opt.value ? 'var(--color-primary)' : 'var(--color-text-muted)', marginBottom: '0.25rem' }}>
-                        {opt.icon}
-                        <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{opt.label}</span>
-                      </div>
-                      <div style={{ fontWeight: 800, fontSize: '1.0625rem', color: paymentMode === opt.value ? 'var(--color-primary)' : 'var(--color-text)' }}>
-                        {opt.sublabel}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                {paymentMode === 'advance50' && (
-                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-warning)', marginTop: '0.75rem' }}>
-                    ⚠️ Balance of ₹{balanceDue} will be collected at the time of sample collection.
-                  </p>
                 )}
+
+                {selectedTests.length > 0 && (
+                   <>
+                    {selectedTests.map((t) => (
+                      <div key={t._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--color-border-light)' }}>
+                        <span style={{ fontSize: '0.9375rem' }}>{t.name}</span>
+                        <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>₹{t.price}</span>
+                      </div>
+                    ))}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', fontWeight: 700, fontSize: '1.0625rem' }}>
+                      <span>Estimated Total</span>
+                      <span style={{ color: 'var(--color-primary)' }}>₹{totalAmount}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+              
+              <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', background: 'var(--color-primary-50)', border: '1px solid var(--color-primary)' }}>
+                <p style={{ fontSize: '0.875rem', color: 'var(--color-primary)' }}>
+                   <strong>Note:</strong> Payment is not required now. Our team will verify your request and confirm the final amount and collection time via phone.
+                </p>
               </div>
 
               {submitStatus === 'error' && (
                 <div style={{ padding: '0.875rem 1rem', background: 'var(--color-error-bg)', borderRadius: 'var(--radius)', color: 'var(--color-error)', marginBottom: '1rem', fontSize: '0.9rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <AlertCircle size={16} /> {submitError}
+                </div>
+              )}
+
+              {/* Upload Progress */}
+              {submitStatus === 'loading' && prescriptionFile && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
+                    <span>Uploading Prescription & Submitting...</span>
+                    <span>{uploadProgress}%</span>
+                  </div>
+                  <div style={{ height: '6px', background: 'var(--color-border)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${uploadProgress}%` }}
+                      style={{ height: '100%', background: 'var(--color-primary)', borderRadius: 'var(--radius-full)' }}
+                    />
+                  </div>
                 </div>
               )}
             </div>
@@ -471,7 +562,7 @@ export default function TestBookingWizard() {
             <button
               className="btn btn-ghost"
               onClick={() => setStep((s) => s - 1)}
-              disabled={step === 0}
+              disabled={step === 0 || submitStatus === 'loading'}
               style={{ visibility: step === 0 ? 'hidden' : 'visible' }}
             >
               <ChevronLeft size={16} /> Back
@@ -481,7 +572,6 @@ export default function TestBookingWizard() {
               <button
                 className="btn btn-primary"
                 onClick={handleNext}
-                disabled={step === 1 && selectedTests.length === 0}
               >
                 Next <ChevronRight size={16} />
               </button>
@@ -492,9 +582,9 @@ export default function TestBookingWizard() {
                 disabled={submitStatus === 'loading'}
               >
                 {submitStatus === 'loading' ? (
-                  <><span className="spinner" style={{ width: '1rem', height: '1rem' }} /> Confirming...</>
+                  <><span className="spinner" style={{ width: '1rem', height: '1rem' }} /> Processing...</>
                 ) : (
-                  <><Check size={18} /> Confirm Booking</>
+                  <><Check size={18} /> Confirm Request</>
                 )}
               </button>
             )}
