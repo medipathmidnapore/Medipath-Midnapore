@@ -14,7 +14,7 @@ export const uploadPrescription = async (req, res) => {
       return res.status(400).json({ success: false, message: 'No file provided.' });
     }
 
-    const { patientName, mobileNumber, bookingId } = req.body;
+    const { patientName, mobileNumber, bookingId, email } = req.body;
 
     if (!patientName || !mobileNumber) {
       return res.status(400).json({ success: false, message: 'Patient Name and Mobile Number are required.' });
@@ -45,6 +45,7 @@ export const uploadPrescription = async (req, res) => {
     const prescriptionRecord = await Prescription.create({
       patientName,
       mobileNumber,
+      email: email || '',
       prescriptionUrl: uploadResult.secure_url,
     });
 

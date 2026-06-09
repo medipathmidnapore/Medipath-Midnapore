@@ -17,6 +17,7 @@ export default function PrescriptionUpload() {
   // Patient Details
   const [patientName, setPatientName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
+  const [email, setEmail] = useState('');
 
   const validateAndSetFile = (f) => {
     if (!ALLOWED_TYPES.includes(f.type)) {
@@ -65,6 +66,7 @@ export default function PrescriptionUpload() {
     formData.append('prescription', file);
     formData.append('patientName', patientName);
     formData.append('mobileNumber', mobileNumber);
+    if (email.trim()) formData.append('email', email.trim());
 
     try {
       const res = await uploadPrescription(formData, (progressEvent) => {
@@ -86,6 +88,7 @@ export default function PrescriptionUpload() {
     setErrorMsg('');
     setPatientName('');
     setMobileNumber('');
+    setEmail('');
   };
 
   return (
@@ -116,7 +119,7 @@ export default function PrescriptionUpload() {
             </div>
             <h3 style={{ marginBottom: '0.75rem', color: 'var(--color-success)' }}>Uploaded Successfully!</h3>
             <p style={{ marginBottom: '1.5rem', fontSize: '0.9375rem', color: 'var(--color-text-muted)' }}>
-              Thank you, {patientName}. Your prescription has been securely uploaded. Our team will review it and contact you shortly at {mobileNumber}.
+              Thank you, {patientName}. Your prescription has been securely uploaded. Our team will review it and contact you shortly at {mobileNumber}{email ? ` or ${email}` : ''}.
             </p>
             <button className="btn btn-outline" onClick={reset}>
               Upload Another
@@ -126,27 +129,40 @@ export default function PrescriptionUpload() {
           <motion.div key="uploader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             
             {/* Patient Details */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Patient Name *</label>
-                <input 
-                  type="text" 
-                  className="input" 
-                  value={patientName} 
-                  onChange={e => setPatientName(e.target.value)} 
-                  placeholder="e.g. John Doe"
-                  required 
-                />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Patient Name *</label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={patientName}
+                    onChange={e => setPatientName(e.target.value)}
+                    placeholder="e.g. John Doe"
+                    required
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Mobile Number *</label>
+                  <input
+                    type="tel"
+                    className="input"
+                    value={mobileNumber}
+                    onChange={e => setMobileNumber(e.target.value)}
+                    placeholder="e.g. 9876543210"
+                    maxLength={10}
+                    required
+                  />
+                </div>
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Mobile Number *</label>
-                <input 
-                  type="tel" 
-                  className="input" 
-                  value={mobileNumber} 
-                  onChange={e => setMobileNumber(e.target.value)} 
-                  placeholder="e.g. 9876543210"
-                  required 
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>Email Address <span style={{ fontWeight: 400, color: 'var(--color-text-light)' }}>(Optional — for faster response)</span></label>
+                <input
+                  type="email"
+                  className="input"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="e.g. yourname@gmail.com"
                 />
               </div>
             </div>

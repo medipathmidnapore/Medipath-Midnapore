@@ -11,6 +11,11 @@ const PrescriptionSchema = new mongoose.Schema({
     required: [true, 'Mobile number is required'],
     trim: true,
   },
+  email: {
+    type: String,
+    trim: true,
+    default: '',
+  },
   prescriptionUrl: {
     type: String,
     required: [true, 'Prescription URL is required'],

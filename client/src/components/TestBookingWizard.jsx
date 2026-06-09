@@ -109,6 +109,7 @@ export default function TestBookingWizard() {
     try {
       const payload = {
         patientName: form.patientName,
+        email: form.email,
         mobile1: form.mobile1,
         mobile2: form.mobile2,
         address: form.address,
@@ -395,6 +396,7 @@ export default function TestBookingWizard() {
                 <h4 style={{ fontSize: '0.9375rem', marginBottom: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.8rem' }}>Patient Details</h4>
                 <p style={{ fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.25rem' }}>{form.patientName}</p>
                 <p style={{ fontSize: '0.9rem' }}>📱 {form.mobile1}{form.mobile2 && ` · ${form.mobile2}`}</p>
+                {form.email && <p style={{ fontSize: '0.9rem' }}>✉️ {form.email}</p>}
                 <p style={{ fontSize: '0.9rem' }}>📍 {form.address}</p>
               </div>
 
