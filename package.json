@@ -1,0 +1,10 @@
+{
+  "name": "medipath-mdn",
+  "version": "1.0.0",
+  "description": "Medipath Diagnostic & Consultation Centre — monorepo root",
+  "private": true,
+  "scripts": {
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev"
+  }
+}
