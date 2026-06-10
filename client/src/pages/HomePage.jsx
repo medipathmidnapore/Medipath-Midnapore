@@ -1,23 +1,25 @@
 import { Helmet } from 'react-helmet-async';
 import HeroSection from '../components/sections/HeroSection';
+import QuickNavigationSection from '../components/sections/QuickNavigationSection';
+import TestSearchSection from '../components/sections/TestSearchSection';
+import DoctorsSection from '../components/sections/DoctorsSection';
 import ServicesSection from '../components/sections/ServicesSection';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, Star, Clock, Quote } from 'lucide-react';
 
 const whyUs = [
   {
-    icon: <Shield size={22} color="var(--color-primary)" />,
+    icon: <Shield size={24} color="var(--color-primary)" />,
     title: 'Trusted & Reliable',
     desc: 'Accurate diagnostic results you can count on, managed by experienced doctors Dr. A.K. Maiti & Dr. Roma Basu Maiti.',
   },
   {
-    icon: <Star size={22} color="var(--color-teal)" fill="var(--color-teal)" />,
+    icon: <Star size={24} color="var(--color-primary)" />,
     title: '4.3★ on Google',
     desc: 'Consistently rated highly by patients for professional staff, clean facility, and economical testing rates.',
   },
   {
-    icon: <Clock size={22} color="#8b5cf6" />,
+    icon: <Clock size={24} color="var(--color-primary)" />,
     title: 'Timely Report Delivery',
     desc: 'Get your reports on time, every time. Same-day reports available for most routine tests.',
   },
@@ -57,97 +59,91 @@ export default function HomePage() {
 
       <main>
         <HeroSection />
+        <QuickNavigationSection />
+        <TestSearchSection />
+        <DoctorsSection />
         <ServicesSection />
 
         {/* Why Choose Us */}
         <section className="section" style={{ background: 'var(--color-bg)' }}>
           <div className="container">
-            <motion.div
-              className="section-header"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
+            <div className="section-header">
               <span className="section-label">Why Patients Choose Us</span>
               <h2>Trusted by Midnapore Families</h2>
               <p style={{ maxWidth: '480px', margin: '1rem auto 0' }}>
                 Budget-friendly rates, professional staff, and a clean hygienic facility — that's the Medipath promise.
               </p>
-            </motion.div>
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
               {whyUs.map((item, i) => (
-                <motion.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.4 }}
-                  className="card"
-                  style={{ padding: '2rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}
+                  style={{ 
+                    padding: '2.5rem', 
+                    display: 'flex', 
+                    gap: '1.5rem', 
+                    alignItems: 'flex-start',
+                    background: '#ffffff',
+                    borderRadius: '1rem',
+                    boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.04)',
+                    border: '1px solid rgba(0,0,0,0.03)',
+                  }}
                 >
                   <div
                     style={{
-                      width: '3rem', height: '3rem', borderRadius: 'var(--radius)',
-                      background: 'var(--color-bg-alt)',
+                      width: '3.5rem', height: '3.5rem',
+                      background: 'var(--color-primary-50)',
+                      borderRadius: '50%',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       flexShrink: 0,
+                      border: '1px solid rgba(30, 58, 138, 0.05)',
                     }}
                   >
                     {item.icon}
                   </div>
                   <div>
-                    <h4 style={{ marginBottom: '0.375rem' }}>{item.title}</h4>
-                    <p style={{ fontSize: '0.9rem' }}>{item.desc}</p>
+                    <h4 style={{ marginBottom: '0.5rem', color: '#0f172a', fontWeight: 700, letterSpacing: '-0.01em', fontSize: '1.125rem' }}>{item.title}</h4>
+                    <p style={{ fontSize: '0.9375rem', color: '#475569', fontWeight: 400, margin: 0, lineHeight: 1.7 }}>{item.desc}</p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 
             {/* Patient Reviews */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              style={{ marginBottom: '4rem' }}
-            >
+            <div style={{ marginBottom: '4rem' }}>
               <h3 style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '1.5rem' }}>
                 What Patients Are Saying
               </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
                 {reviews.map((review, i) => (
-                  <motion.div
+                  <div
                     key={i}
-                    initial={{ opacity: 0, y: 16 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.4 }}
-                    className="card"
-                    style={{ padding: '1.5rem' }}
+                    style={{ 
+                      padding: '2rem',
+                      background: '#ffffff',
+                      borderRadius: '1rem',
+                      boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.04)',
+                      border: '1px solid rgba(0,0,0,0.03)',
+                    }}
                   >
-                    <div style={{ display: 'flex', gap: '2px', marginBottom: '0.875rem' }}>
+                    <div style={{ display: 'flex', gap: '2px', marginBottom: '1rem' }}>
                       {Array.from({ length: review.rating }).map((_, s) => (
-                        <Star key={s} size={14} color="#f59e0b" fill="#f59e0b" />
+                        <Star key={s} size={16} color="var(--color-warning)" fill="var(--color-warning)" />
                       ))}
                     </div>
-                    <p style={{ fontSize: '0.9375rem', lineHeight: 1.65, color: 'var(--color-text-secondary)', marginBottom: '1rem', fontStyle: 'italic' }}>
+                    <p style={{ fontSize: '0.9375rem', lineHeight: 1.7, color: '#334155', marginBottom: '1.25rem', fontStyle: 'italic', fontWeight: 400 }}>
                       {review.text}
                     </p>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--color-text)' }}>{review.name}</p>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Google Review</p>
-                  </motion.div>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>{review.name}</p>
+                    <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0.25rem 0 0 0' }}>Google Review</p>
+                  </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* High-Conversion CTA Banner */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+            <div
               style={{
                 position: 'relative',
                 overflow: 'hidden',
@@ -225,7 +221,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
       </main>

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { fetchActiveNotices } from '../services/api';
 import { Helmet } from 'react-helmet-async';
 import { Megaphone, Calendar, Clock, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export default function NoticePage() {
   const [notices, setNotices] = useState([]);
@@ -30,10 +29,7 @@ export default function NoticePage() {
       </Helmet>
 
       <div className="container" style={{ maxWidth: '800px' }}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+        <div
           style={{ textAlign: 'center', marginBottom: '3rem' }}
         >
           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '4rem', height: '4rem', background: 'var(--color-primary-50)', borderRadius: '50%', color: 'var(--color-primary)', marginBottom: '1rem' }}>
@@ -41,7 +37,7 @@ export default function NoticePage() {
           </div>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--color-text)', marginBottom: '0.5rem' }}>Notice Board</h1>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '1.125rem' }}>Important announcements and updates from our clinic</p>
-        </motion.div>
+        </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '4rem' }}>
@@ -55,11 +51,8 @@ export default function NoticePage() {
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             {notices.map((notice, index) => (
-              <motion.div
+              <div
                 key={notice._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
                 className="card card-hover"
                 style={{
                   padding: '2rem',
@@ -87,7 +80,7 @@ export default function NoticePage() {
                     <span>Valid until {new Date(notice.expiresAt).toLocaleString()}</span>
                   </div>
                 )}
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

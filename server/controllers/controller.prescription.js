@@ -30,7 +30,12 @@ export const uploadPrescription = async (req, res) => {
         }
       );
 
+      // Prevent unhandled stream errors from crashing Node process
+      uploadStream.on('error', (err) => reject(err));
+
       const readable = Readable.from(req.file.buffer);
+      readable.on('error', (err) => reject(err));
+      
       readable.pipe(uploadStream);
     });
 

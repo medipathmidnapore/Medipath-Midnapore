@@ -1,5 +1,4 @@
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
 import TestBookingWizard from '../components/TestBookingWizard';
 import { Home, Clock, Shield, AlertCircle } from 'lucide-react';
 
@@ -18,10 +17,7 @@ export default function BookingPage() {
         {/* Page Header */}
         <section style={{ background: 'white', borderBottom: '1px solid var(--color-border)', padding: '3rem 0' }}>
           <div className="container">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
+            <div
               style={{ maxWidth: '650px' }}
             >
               <span className="section-label">Book Appointment</span>
@@ -48,7 +44,7 @@ export default function BookingPage() {
                 <AlertCircle size={15} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
                 <span><strong>Note:</strong> We are closed on Thursdays. For fasting tests (blood sugar, lipid), please call <a href="tel:+919083276651" style={{ color: 'var(--color-warning)', fontWeight: 700 }}>+91 90832 76651</a> to confirm preparation rules.</span>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 

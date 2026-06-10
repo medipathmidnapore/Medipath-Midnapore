@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Phone, MapPin, Search, Plus, Minus, Check, ChevronRight,
   ChevronLeft, FlaskConical, CheckCircle, AlertCircle, Loader2, Upload, FileText, X
@@ -35,6 +34,8 @@ export default function TestBookingWizard() {
   const [prescriptionPreview, setPrescriptionPreview] = useState(null);
   const [dragging, setDragging] = useState(false);
   const [fileError, setFileError] = useState('');
+  
+  const [notes, setNotes] = useState('');
 
   // Submit
   const [submitStatus, setSubmitStatus] = useState('idle'); // idle | loading | success | error
@@ -171,6 +172,7 @@ export default function TestBookingWizard() {
         address: form.address,
         tests: selectedTests.map((t) => ({ testId: t._id, name: t.name, price: t.price })),
         prescriptionUrl, // Attach to booking
+        notes,
       };
 
       const res = await createBooking(payload);
@@ -184,9 +186,7 @@ export default function TestBookingWizard() {
 
   if (submitStatus === 'success') {
     return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+      <div
         className="card card-elevated"
         style={{ padding: '3rem 2rem', textAlign: 'center', maxWidth: '520px', margin: '0 auto' }}
       >
@@ -215,7 +215,7 @@ export default function TestBookingWizard() {
         }}>
           Done
         </button>
-      </motion.div>
+      </div>
     );
   }
 
@@ -241,13 +241,9 @@ export default function TestBookingWizard() {
       </div>
 
       {/* Step Content */}
-      <AnimatePresence mode="wait">
-        <motion.div
+      <>
+        <div
           key={step}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.25 }}
           className="card card-elevated"
           style={{ padding: '2rem' }}
         >
@@ -480,6 +476,22 @@ export default function TestBookingWizard() {
                    {fileError}
                  </p>
               )}
+
+              {/* Additional Notes */}
+              <div style={{ marginTop: '2rem' }}>
+                <label htmlFor="notes" style={{ display: 'block', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--color-text)' }}>
+                  Additional Notes / Symptoms (Optional)
+                </label>
+                <textarea
+                  id="notes"
+                  className="input"
+                  placeholder="E.g. Fever since 3 days, fasting required, etc."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={3}
+                  style={{ resize: 'vertical' }}
+                />
+              </div>
             </div>
           )}
 
@@ -524,6 +536,13 @@ export default function TestBookingWizard() {
                     </div>
                   </>
                 )}
+
+                {notes && (
+                  <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--color-border-light)' }}>
+                    <p style={{ fontWeight: 600, fontSize: '0.875rem', marginBottom: '0.25rem', color: 'var(--color-text-muted)' }}>Additional Notes:</p>
+                    <p style={{ fontSize: '0.9375rem', fontStyle: 'italic', color: 'var(--color-text)' }}>"{notes}"</p>
+                  </div>
+                )}
               </div>
               
               <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', background: 'var(--color-primary-50)', border: '1px solid var(--color-primary)' }}>
@@ -546,10 +565,8 @@ export default function TestBookingWizard() {
                     <span>{uploadProgress}%</span>
                   </div>
                   <div style={{ height: '6px', background: 'var(--color-border)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${uploadProgress}%` }}
-                      style={{ height: '100%', background: 'var(--color-primary)', borderRadius: 'var(--radius-full)' }}
+                    <div
+                      style={{ width: `${uploadProgress}%`, height: '100%', background: 'var(--color-primary)', borderRadius: 'var(--radius-full)', transition: 'width 0.3s' }}
                     />
                   </div>
                 </div>
@@ -589,8 +606,8 @@ export default function TestBookingWizard() {
               </button>
             )}
           </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </>
     </div>
   );
 }

@@ -9,7 +9,7 @@ import Booking from '../models/model.booking.js';
  */
 export const createBooking = async (req, res) => {
   try {
-    const { patientName, mobile1, address, tests, prescriptionUrl } = req.body;
+    const { patientName, mobile1, address, tests, prescriptionUrl, notes } = req.body;
 
     if (!patientName || !mobile1 || !address) {
       return res.status(400).json({
@@ -35,6 +35,7 @@ export const createBooking = async (req, res) => {
        balanceDue: totalAmount, // Assuming unpaid initially since we removed payment from proxy
        paymentMode: 'unpaid',
        prescriptionUrl: prescriptionUrl || '',
+       notes: notes || '',
        status: 'pending'
     });
 
@@ -49,14 +50,20 @@ export const createBooking = async (req, res) => {
     console.log(`Forwarding booking to main server at ${mainServerUrl}/api/bookings`);
     
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      
       const response = await fetch(`${mainServerUrl}/api/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': process.env.MAIN_SERVER_API_KEY || ''
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
          throw new Error(`Main server responded with status: ${response.status}`);
@@ -75,7 +82,7 @@ export const createBooking = async (req, res) => {
       
     } catch (fetchError) {
       console.error('Error forwarding to main server:', fetchError);
-      // Fallback response for development/testing if main server is not up
+      // Fallback response for development/testing if main server is not up or timed out
       res.status(201).json({
         success: true,
         message: 'Booking saved locally, but forwarding failed (simulated fallback).',

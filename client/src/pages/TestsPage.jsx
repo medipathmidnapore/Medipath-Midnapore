@@ -1,16 +1,31 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
 import { Search, FlaskConical, Loader2, Filter, Clock } from 'lucide-react';
 import { fetchTests, fetchCategories } from '../services/api';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function TestsPage() {
+  const location = useLocation();
+  
   const [tests, setTests] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
+  
+  const [search, setSearch] = useState(() => {
+    return new URLSearchParams(window.location.search).get('search') || '';
+  });
+  const [activeCategory, setActiveCategory] = useState(() => {
+    return new URLSearchParams(window.location.search).get('category') || 'All';
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cat = params.get('category');
+    const q = params.get('search');
+    
+    if (cat) setActiveCategory(cat);
+    if (q !== null) setSearch(q || ''); // allow clearing search if explicitly empty
+  }, [location.search]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -30,7 +45,7 @@ export default function TestsPage() {
 
   const filtered = tests.filter((t) => {
     const matchSearch = !search || t.name.toLowerCase().includes(search.toLowerCase()) || t.category.toLowerCase().includes(search.toLowerCase());
-    const matchCat = activeCategory === 'All' || t.category === activeCategory;
+    const matchCat = activeCategory.toLowerCase() === 'all' || t.category.toLowerCase() === activeCategory.toLowerCase();
     return matchSearch && matchCat;
   });
 
@@ -45,7 +60,7 @@ export default function TestsPage() {
         {/* Header */}
         <section style={{ background: 'white', borderBottom: '1px solid var(--color-border)', padding: '3rem 0 2rem' }}>
           <div className="container">
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+            <div>
               <span className="section-label">Test Catalogue</span>
               <h1 style={{ marginBottom: '1.5rem' }}>Tests & Pricing</h1>
 
@@ -60,7 +75,7 @@ export default function TestsPage() {
                   style={{ paddingLeft: '3rem', fontSize: '1rem' }}
                 />
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -69,19 +84,22 @@ export default function TestsPage() {
             {/* Category Filters */}
             {categories.length > 1 && (
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`btn btn-sm ${activeCategory === cat ? 'btn-primary' : 'btn-ghost'}`}
-                    style={{
-                      border: activeCategory === cat ? 'none' : '1px solid var(--color-border)',
-                      fontWeight: activeCategory === cat ? 700 : 500,
-                    }}
-                  >
-                    {cat}
-                  </button>
-                ))}
+                {categories.map((cat) => {
+                  const isActive = activeCategory.toLowerCase() === cat.toLowerCase();
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-ghost'}`}
+                      style={{
+                        border: isActive ? 'none' : '1px solid var(--color-border)',
+                        fontWeight: isActive ? 700 : 500,
+                      }}
+                    >
+                      {cat}
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -100,11 +118,8 @@ export default function TestsPage() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
                 {filtered.map((test, i) => (
-                  <motion.div
+                  <div
                     key={test._id}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03, duration: 0.35 }}
                     className="card"
                     style={{ padding: '1.5rem' }}
                   >
@@ -123,17 +138,14 @@ export default function TestsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
                       <Clock size={13} /> Report in {test.turnaroundHours}h
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             )}
 
             {/* CTA */}
             {!loading && filtered.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
+              <div
                 style={{ textAlign: 'center', marginTop: '3rem' }}
               >
                 <p style={{ marginBottom: '1rem', fontWeight: 500 }}>Ready to book? Medipath offers home collection in Midnapore & nearby areas.</p>
@@ -141,7 +153,7 @@ export default function TestsPage() {
                   <Link to="/book" className="btn btn-primary btn-lg">Book Home Collection</Link>
                   <a href="tel:+919083276651" className="btn btn-outline btn-lg">Call +91 90832 76651</a>
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
         </section>

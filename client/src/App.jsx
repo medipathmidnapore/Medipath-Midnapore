@@ -21,10 +21,11 @@ import './index.css';
 function AppContent() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isHomeRoute = location.pathname === '/';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      {!isAdminRoute && <Navbar />}
+      {!isAdminRoute && !isHomeRoute && <Navbar />}
       <div style={{ flex: 1 }}>
         <Routes>
           {/* Public Routes */}
@@ -56,9 +57,9 @@ function App() {
       <HelmetProvider>
         <BrowserRouter>
           <AppContent />
-      </BrowserRouter>
-    </HelmetProvider>
-  </AuthProvider>
+        </BrowserRouter>
+      </HelmetProvider>
+    </AuthProvider>
   );
 }
 

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Search, FileDown, Lock, AlertTriangle, CheckCircle, QrCode, Phone, FileText, Clock } from 'lucide-react';
 import { lookupReport } from '../services/api';
 
@@ -37,10 +36,7 @@ export default function ReportDownload() {
   return (
     <div style={{ maxWidth: '520px', margin: '0 auto' }}>
       {/* Search Form */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+      <div
         style={{
           padding: '2px',
           background: 'linear-gradient(135deg, rgba(26,86,219,0.4) 0%, rgba(20,184,166,0.4) 100%)',
@@ -58,8 +54,7 @@ export default function ReportDownload() {
         }}>
           
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <motion.div
-              whileHover={{ scale: 1.05, rotate: 5 }}
+            <div
               style={{
                 display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 width: '4rem', height: '4rem', borderRadius: '50%',
@@ -69,7 +64,7 @@ export default function ReportDownload() {
               }}
             >
               <Search size={28} />
-            </motion.div>
+            </div>
             <h3 style={{ fontSize: '1.625rem', fontWeight: 800, color: 'var(--color-text)', margin: '0 0 0.25rem' }}>Secure Report Access</h3>
             <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-muted)', margin: 0 }}>Retrieve your PDF instantly</p>
           </div>
@@ -132,15 +127,13 @@ export default function ReportDownload() {
           </div>
 
           {error && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+            <div
               style={{ overflow: 'hidden' }}
             >
               <div style={{ padding: '0.875rem 1rem', background: 'var(--color-error-bg)', borderRadius: 'var(--radius)', color: 'var(--color-error)', fontSize: '0.9375rem', fontWeight: 500, marginBottom: '1.5rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <AlertTriangle size={18} /> {error}
               </div>
-            </motion.div>
+            </div>
           )}
 
           <button
@@ -173,16 +166,12 @@ export default function ReportDownload() {
             )}
           </button>
         </form>
-      </motion.div>
+      </div>
 
       {/* Result */}
-      <AnimatePresence mode="wait">
+      <>
         {status === 'not_found' && (
-          <motion.div
-            key="not_found"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
+          <div
             className="card"
             style={{ padding: '2rem', textAlign: 'center' }}
           >
@@ -192,21 +181,14 @@ export default function ReportDownload() {
               We couldn't find a report matching your Bill No. and mobile number. 
               Please double-check and try again.
             </p>
-          </motion.div>
+          </div>
         )}
 
         {status === 'found' && report && (
-          <motion.div
-            key="found"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-          >
+          <div>
             {/* STATE 1: WAIT NORMAL */}
             {report.status === 'wait_normal' && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
+              <div
                 className="card"
                 style={{ padding: '2rem', textAlign: 'center', border: '2px solid #fde68a' }}
               >
@@ -224,14 +206,12 @@ export default function ReportDownload() {
                 <p style={{ marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>
                   {report.message || 'Your report is still being processed. Please check back later.'}
                 </p>
-              </motion.div>
+              </div>
             )}
 
             {/* STATE 2: WAIT PAYMENT */}
             {report.status === 'wait_payment' && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
+              <div
                 className="card"
                 style={{ padding: '2rem', textAlign: 'center', border: '2px solid #fecaca' }}
               >
@@ -283,14 +263,12 @@ export default function ReportDownload() {
                     with your transaction details to unlock your report.
                   </p>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* STATE 3: READY */}
             {report.status === 'ready' && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
+              <div
                 className="card"
                 style={{ padding: '2rem', textAlign: 'center', border: '2px solid #bbf7d0' }}
               >
@@ -320,11 +298,11 @@ export default function ReportDownload() {
                 <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-light)', marginTop: '1rem' }}>
                   🔒 Secure download from our certified servers
                 </p>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
     </div>
   );
 }

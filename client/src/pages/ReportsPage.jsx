@@ -1,5 +1,4 @@
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
 import ReportDownload from '../components/ReportDownload';
 import { FileText, Lock, Phone } from 'lucide-react';
 
@@ -23,11 +22,7 @@ export default function ReportsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
               
               {/* Left Column: Text */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-              >
+              <div>
                 <span className="section-label">Report Portal</span>
                 <h1 style={{ marginBottom: '1.25rem', fontSize: '3rem', lineHeight: 1.1 }}>
                   Access Your <span className="text-gradient-primary">Reports</span> Online
@@ -53,13 +48,10 @@ export default function ReportsPage() {
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
 
               {/* Right Column: Form */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, ease: 'easeOut', delay: 0.2 }}
+              <div
                 style={{ position: 'relative' }}
               >
                 {/* Decorative Elements */}
@@ -70,7 +62,7 @@ export default function ReportsPage() {
                 <div style={{ position: 'relative', zIndex: 10 }}>
                   <ReportDownload />
                 </div>
-              </motion.div>
+              </div>
 
             </div>
           </div>

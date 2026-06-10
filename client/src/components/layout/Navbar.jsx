@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Clock, MapPin, Menu, X, FlaskConical, Megaphone } from 'lucide-react';
 import { fetchActiveNotices } from '../../services/api';
 
@@ -195,69 +194,63 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                position: 'absolute',
-                top: '100%',
-                left: 0,
-                right: 0,
-                background: 'white',
-                borderBottom: '1px solid var(--color-border)',
-                boxShadow: 'var(--shadow-xl)',
-                padding: '1rem',
-              }}
-            >
-              {navLinks.map((link) => {
-                const isActive = location.pathname === link.path;
-                return (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    style={{
-                      display: 'block',
-                      padding: '0.875rem 1rem',
-                      borderRadius: 'var(--radius)',
-                      fontWeight: isActive ? 700 : 500,
-                      color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
-                      background: isActive ? 'var(--color-primary-50)' : 'transparent',
-                      marginBottom: '0.25rem',
-                      transition: 'all 0.2s',
-                    }}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-              {hasNotices && (
+        {mobileOpen && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              background: 'white',
+              borderBottom: '1px solid var(--color-border)',
+              boxShadow: 'var(--shadow-xl)',
+              padding: '1rem',
+            }}
+          >
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path;
+              return (
                 <Link
-                  to="/notices"
+                  key={link.path}
+                  to={link.path}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: '0.5rem',
-                    textDecoration: 'none', padding: '0.875rem 1rem',
-                    color: location.pathname === '/notices' ? 'var(--color-primary)' : '#b91c1c',
-                    background: location.pathname === '/notices' ? 'var(--color-primary-50)' : '#fef2f2',
+                    display: 'block',
+                    padding: '0.875rem 1rem',
                     borderRadius: 'var(--radius)',
-                    fontWeight: 600,
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
+                    background: isActive ? 'var(--color-primary-50)' : 'transparent',
                     marginBottom: '0.25rem',
+                    transition: 'all 0.2s',
                   }}
                 >
-                  <Megaphone size={16} /> Notice Board
+                  {link.label}
                 </Link>
-              )}
-              <div style={{ padding: '0.75rem 1rem 0' }}>
-                <Link to="/book" className="btn btn-primary" style={{ width: '100%' }}>
-                  Book Home Collection
-                </Link>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              );
+            })}
+            {hasNotices && (
+              <Link
+                to="/notices"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  textDecoration: 'none', padding: '0.875rem 1rem',
+                  color: location.pathname === '/notices' ? 'var(--color-primary)' : '#b91c1c',
+                  background: location.pathname === '/notices' ? 'var(--color-primary-50)' : '#fef2f2',
+                  borderRadius: 'var(--radius)',
+                  fontWeight: 600,
+                  marginBottom: '0.25rem',
+                }}
+              >
+                <Megaphone size={16} /> Notice Board
+              </Link>
+            )}
+            <div style={{ padding: '0.75rem 1rem 0' }}>
+              <Link to="/book" className="btn btn-primary" style={{ width: '100%' }}>
+                Book Home Collection
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
     </>
   );
