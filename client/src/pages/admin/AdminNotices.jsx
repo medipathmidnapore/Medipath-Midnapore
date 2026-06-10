@@ -11,6 +11,9 @@ export default function AdminNotices() {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
+    type: 'nominal',
+    scheduleType: 'now',
+    customPublishAt: '',
     durationType: '1_week',
     customHours: ''
   });
@@ -34,9 +37,23 @@ export default function AdminNotices() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    
+    // Calculate publishAt
+    let publishAt = new Date();
+    if (formData.scheduleType === '1_hour') publishAt.setHours(publishAt.getHours() + 1);
+    else if (formData.scheduleType === '2_hours') publishAt.setHours(publishAt.getHours() + 2);
+    else if (formData.scheduleType === '1_day') publishAt.setDate(publishAt.getDate() + 1);
+    else if (formData.scheduleType === '2_days') publishAt.setDate(publishAt.getDate() + 2);
+    else if (formData.scheduleType === 'custom' && formData.customPublishAt) {
+      publishAt = new Date(formData.customPublishAt);
+    }
+    
     try {
-      await createNotice(formData);
-      setFormData({ title: '', content: '', durationType: '1_week', customHours: '' });
+      await createNotice({
+        ...formData,
+        publishAt: publishAt.toISOString()
+      });
+      setFormData({ title: '', content: '', type: 'nominal', scheduleType: 'now', customPublishAt: '', durationType: '1_week', customHours: '' });
       setShowForm(false);
       loadNotices();
     } catch (err) {
@@ -68,8 +85,15 @@ export default function AdminNotices() {
 
   const isNoticeActive = (n) => {
     if (!n.isActive) return false;
+    const now = new Date();
+    if (new Date(n.publishAt) > now) return false; // Scheduled for future
     if (n.isPermanent) return true;
-    return new Date(n.expiresAt) > new Date();
+    return new Date(n.expiresAt) > now;
+  };
+
+  const isNoticeScheduled = (n) => {
+    if (!n.isActive) return false;
+    return new Date(n.publishAt) > new Date();
   };
 
   return (
@@ -92,6 +116,35 @@ export default function AdminNotices() {
               <label>Notice Title</label>
               <input type="text" className="input" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required placeholder="e.g. Clinic Closed on Friday" />
             </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label>Notice Type</label>
+                <select className="input" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                  <option value="nominal">Nominal (Sticky Top Bar)</option>
+                  <option value="important">Important (Modal Popup)</option>
+                </select>
+              </div>
+              <div>
+                <label>Publish Schedule</label>
+                <select className="input" value={formData.scheduleType} onChange={e => setFormData({...formData, scheduleType: e.target.value})}>
+                  <option value="now">Post Now</option>
+                  <option value="1_hour">In 1 Hour</option>
+                  <option value="2_hours">In 2 Hours</option>
+                  <option value="1_day">In 1 Day</option>
+                  <option value="2_days">In 2 Days</option>
+                  <option value="custom">Custom Date & Time</option>
+                </select>
+              </div>
+            </div>
+
+            {formData.scheduleType === 'custom' && (
+              <div>
+                <label>Custom Publish Date & Time</label>
+                <input type="datetime-local" className="input" value={formData.customPublishAt} onChange={e => setFormData({...formData, customPublishAt: e.target.value})} required />
+              </div>
+            )}
+
             <div>
               <label>Content</label>
               <textarea className="input" value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} required rows={3} placeholder="Provide details..."></textarea>
@@ -135,16 +188,25 @@ export default function AdminNotices() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <h3 style={{ fontSize: '1.125rem' }}>{notice.title}</h3>
+                      {notice.type === 'important' && (
+                        <span style={{ fontSize: '0.75rem', background: '#fee2e2', color: '#991b1b', padding: '0.125rem 0.375rem', borderRadius: '4px', fontWeight: 600 }}>IMPORTANT</span>
+                      )}
                       {active ? (
                         <span style={{ fontSize: '0.75rem', background: '#dcfce7', color: '#166534', padding: '0.125rem 0.375rem', borderRadius: '4px', fontWeight: 600 }}>Active</span>
+                      ) : isNoticeScheduled(notice) ? (
+                        <span style={{ fontSize: '0.75rem', background: '#dbeafe', color: '#1e40af', padding: '0.125rem 0.375rem', borderRadius: '4px', fontWeight: 600 }}>Scheduled</span>
                       ) : (
                         <span style={{ fontSize: '0.75rem', background: '#f1f5f9', color: '#475569', padding: '0.125rem 0.375rem', borderRadius: '4px', fontWeight: 600 }}>Expired/Disabled</span>
                       )}
                     </div>
                     <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', marginBottom: '1rem' }}>{notice.content}</p>
                     
-                    <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-text-light)' }}>
+                    <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-text-light)', flexWrap: 'wrap' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Clock size={14} /> Created: {new Date(notice.createdAt).toLocaleString()}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: isNoticeScheduled(notice) ? '#2563eb' : 'inherit' }}>
+                        <AlertCircle size={14} /> 
+                        Goes Live: {new Date(notice.publishAt).toLocaleString()}
+                      </span>
                       {notice.isPermanent ? (
                         <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><AlertCircle size={14} /> Never Expires</span>
                       ) : (

@@ -53,6 +53,13 @@ export default function AdminBookings() {
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Phone size={14} /> {b.mobile1} {b.mobile2 ? `/ ${b.mobile2}` : ''}</span>
                   <span style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}><MapPin size={14} style={{ marginTop: '0.125rem' }} /> {b.address}</span>
                 </div>
+                
+                {b.notes && (
+                  <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--color-bg-alt)', borderRadius: 'var(--radius)', borderLeft: '3px solid var(--color-warning)' }}>
+                    <p style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-text-muted)', marginBottom: '0.25rem' }}>Additional Notes:</p>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--color-text)' }}>{b.notes}</p>
+                  </div>
+                )}
               </div>
 
               <div style={{ background: 'var(--color-bg-alt)', padding: '1rem', borderRadius: 'var(--radius)', minWidth: '220px' }}>

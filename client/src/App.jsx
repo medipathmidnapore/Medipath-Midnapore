@@ -16,6 +16,7 @@ import AdminTests from './pages/admin/AdminTests';
 import AdminNotices from './pages/admin/AdminNotices';
 import AdminSettings from './pages/admin/AdminSettings';
 import { useLocation } from 'react-router-dom';
+import NoticeBanner from './components/layout/NoticeBanner';
 import './index.css';
 
 function AppContent() {
@@ -25,6 +26,7 @@ function AppContent() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {!isAdminRoute && <NoticeBanner />}
       {!isAdminRoute && !isHomeRoute && <Navbar />}
       <div style={{ flex: 1 }}>
         <Routes>

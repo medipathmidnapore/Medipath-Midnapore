@@ -18,6 +18,15 @@ const NoticeSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  type: {
+    type: String,
+    enum: ['nominal', 'important'],
+    default: 'nominal'
+  },
+  publishAt: {
+    type: Date,
+    default: Date.now
+  },
   expiresAt: {
     type: Date,
   }

@@ -4,9 +4,10 @@ import Notice from '../models/model.notice.js';
 export const getActiveNotices = async (req, res) => {
   try {
     const now = new Date();
-    // Active notices are those that are isActive=true AND (isPermanent=true OR expiresAt > now)
+    // Active notices: isActive=true AND publishAt <= now AND (isPermanent=true OR expiresAt > now)
     const notices = await Notice.find({
       isActive: true,
+      publishAt: { $lte: now },
       $or: [
         { isPermanent: true },
         { expiresAt: { $gt: now } }
@@ -32,14 +33,15 @@ export const getAllNotices = async (req, res) => {
 // Admin: Create notice
 export const createNotice = async (req, res) => {
   try {
-    const { title, content, durationType, customHours } = req.body;
+    const { title, content, type, publishAt, durationType, customHours } = req.body;
     let expiresAt = null;
     let isPermanent = false;
+    
+    const publishDate = publishAt ? new Date(publishAt) : new Date();
 
     if (durationType === 'forever') {
       isPermanent = true;
     } else {
-      const now = new Date();
       let hoursToAdd = 0;
 
       if (durationType === '1_day') hoursToAdd = 24;
@@ -47,7 +49,7 @@ export const createNotice = async (req, res) => {
       else if (durationType === 'custom' && customHours) hoursToAdd = Number(customHours);
 
       if (hoursToAdd > 0) {
-        expiresAt = new Date(now.getTime() + hoursToAdd * 60 * 60 * 1000);
+        expiresAt = new Date(publishDate.getTime() + hoursToAdd * 60 * 60 * 1000);
       } else {
         return res.status(400).json({ success: false, message: 'Invalid duration specified' });
       }
@@ -56,6 +58,8 @@ export const createNotice = async (req, res) => {
     const notice = await Notice.create({
       title,
       content,
+      type: type || 'nominal',
+      publishAt: publishDate,
       isPermanent,
       expiresAt,
       isActive: true
