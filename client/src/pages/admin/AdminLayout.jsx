@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical } from 'lucide-react';
+import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical, RefreshCw } from 'lucide-react';
 
 const sidebarLinks = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
@@ -15,6 +15,15 @@ export default function AdminLayout() {
   const { logout, isAdmin } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Auto refresh every 10 minutes (600000 ms)
+  useEffect(() => {
+    if (!isAdmin) return;
+    const timer = setInterval(() => {
+      window.location.reload();
+    }, 600000);
+    return () => clearInterval(timer);
+  }, [isAdmin]);
 
   if (!isAdmin) {
     return <Navigate to="/admin/login" replace />;
@@ -81,10 +90,31 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main style={{ flex: 1, padding: '2rem 3rem', overflowY: 'auto' }}>
-        <Outlet />
-      </main>
+      {/* Main Content Area */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Top Header */}
+        <header style={{ background: 'white', borderBottom: '1px solid var(--color-border)', padding: '1rem 3rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+          <button 
+             onClick={() => window.location.reload()}
+             style={{ 
+               display: 'flex', alignItems: 'center', gap: '0.5rem', 
+               padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 600,
+               background: 'white', border: '1px solid var(--color-border)',
+               borderRadius: 'var(--radius)', color: 'var(--color-text)', cursor: 'pointer',
+               boxShadow: '0 2px 5px rgba(0,0,0,0.02)', transition: 'background 0.2s'
+             }}
+             onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-bg-alt)'}
+             onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+          >
+            <RefreshCw size={16} /> Refresh Data
+          </button>
+        </header>
+
+        {/* Dynamic Content */}
+        <main style={{ flex: 1, padding: '2rem 3rem', overflowY: 'auto' }}>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
