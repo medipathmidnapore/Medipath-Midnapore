@@ -6,6 +6,7 @@ const quickLinks = [
   { label: 'Download Reports', path: '/reports' },
   { label: 'Upload Prescription', path: '/upload' },
   { label: 'Tests & Pricing', path: '/tests' },
+  { label: 'Admin Login', path: '/admin' },
 ];
 
 export default function Footer() {
