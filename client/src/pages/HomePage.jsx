@@ -7,23 +7,6 @@ import ServicesSection from '../components/sections/ServicesSection';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Shield, Star, Clock, Quote } from 'lucide-react';
 
-const whyUs = [
-  {
-    icon: <Shield size={24} color="var(--color-primary)" />,
-    title: 'Trusted & Reliable',
-    desc: 'Accurate diagnostic results you can count on, managed by experienced doctors Dr. A.K. Maiti & Dr. Roma Basu Maiti.',
-  },
-  {
-    icon: <Star size={24} color="var(--color-primary)" />,
-    title: '4.3★ on Google',
-    desc: 'Consistently rated highly by patients for professional staff, clean facility, and economical testing rates.',
-  },
-  {
-    icon: <Clock size={24} color="var(--color-primary)" />,
-    title: 'Timely Report Delivery',
-    desc: 'Get your reports on time, every time. Same-day reports available for most routine tests.',
-  },
-];
 
 const reviews = [
   {
@@ -67,48 +50,6 @@ export default function HomePage() {
         {/* Why Choose Us */}
         <section className="section" style={{ background: 'var(--color-bg)' }}>
           <div className="container">
-            <div className="section-header">
-              <span className="section-label">Why Patients Choose Us</span>
-              <h2>Trusted by Midnapore Families</h2>
-              <p style={{ maxWidth: '480px', margin: '1rem auto 0' }}>
-                Budget-friendly rates, professional staff, and a clean hygienic facility — that's the Medipath promise.
-              </p>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
-              {whyUs.map((item, i) => (
-                <div
-                  key={i}
-                  style={{ 
-                    padding: '2.5rem', 
-                    display: 'flex', 
-                    gap: '1.5rem', 
-                    alignItems: 'flex-start',
-                    background: '#ffffff',
-                    borderRadius: '1rem',
-                    boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.04)',
-                    border: '1px solid rgba(0,0,0,0.03)',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '3.5rem', height: '3.5rem',
-                      background: 'var(--color-primary-50)',
-                      borderRadius: '50%',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                      border: '1px solid rgba(30, 58, 138, 0.05)',
-                    }}
-                  >
-                    {item.icon}
-                  </div>
-                  <div>
-                    <h4 style={{ marginBottom: '0.5rem', color: '#0f172a', fontWeight: 700, letterSpacing: '-0.01em', fontSize: '1.125rem' }}>{item.title}</h4>
-                    <p style={{ fontSize: '0.9375rem', color: '#475569', fontWeight: 400, margin: 0, lineHeight: 1.7 }}>{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
 
             {/* Patient Reviews */}
             <div style={{ marginBottom: '4rem' }}>

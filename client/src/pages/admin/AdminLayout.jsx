@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical } from 'lucide-react';
@@ -12,9 +12,13 @@ const sidebarLinks = [
 ];
 
 export default function AdminLayout() {
-  const { logout } = useContext(AuthContext);
+  const { logout, isAdmin } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
+
+  if (!isAdmin) {
+    return <Navigate to="/admin/login" replace />;
+  }
 
   const handleLogout = () => {
     logout();

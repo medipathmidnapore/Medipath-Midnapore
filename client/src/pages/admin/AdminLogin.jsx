@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { adminLogin } from '../../services/api';
 import { Shield, Lock, Loader2, AlertTriangle } from 'lucide-react';
@@ -9,8 +9,12 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useContext(AuthContext);
+  const { login, isAdmin } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  if (isAdmin) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault();

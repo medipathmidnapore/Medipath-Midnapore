@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Home, Star, MapPin, Award, Eye } from 'lucide-react';
+import { Home, Star, MapPin, Award, Eye, Clock } from 'lucide-react';
 
 export default function HeroSection() {
   return (
@@ -48,10 +48,54 @@ export default function HeroSection() {
             Medipath brings together advanced pathological testing and expert ophthalmology under one roof for complete family healthcare.
           </p>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
             <Link to="/book" className="btn btn-primary" style={{ padding: '1rem 2.5rem', fontSize: '1.125rem', borderRadius: '3rem', boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)' }}>
               <Home size={20} /> Book Home Collection
             </Link>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', marginBottom: '2rem' }}>
+            {/* Report Delivery Time Banner */}
+            <div style={{ 
+              background: 'var(--color-warning)', 
+              color: 'var(--color-primary-dark)', 
+              padding: '0.625rem 1.25rem', 
+              borderRadius: '2rem', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              fontWeight: 800,
+              fontSize: '0.875rem',
+              boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              <Clock size={18} /> Standard Report Delivery Time: 6:00 PM
+            </div>
+
+            {/* In-House Histopathology Banner */}
+            <div style={{ 
+              background: 'var(--color-primary-50)', 
+              border: '1px solid var(--color-primary-100)', 
+              padding: '0.875rem 1.25rem', 
+              borderRadius: '1rem', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '0.75rem',
+              maxWidth: '100%'
+            }}>
+              <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}>
+                <Star size={16} fill="white" />
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ fontWeight: 800, color: 'var(--color-primary-dark)', fontSize: '0.9375rem', lineHeight: 1.2 }}>
+                  In-House Histopathology
+                </div>
+                <div style={{ fontSize: '0.8125rem', color: 'var(--color-primary)', fontWeight: 600 }}>
+                  We perform all biopsies & histopathology ourselves. No outsourcing!
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>

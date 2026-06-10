@@ -57,7 +57,7 @@ export default function DoctorsSection() {
                 e.currentTarget.style.boxShadow = '0 15px 30px -10px rgba(0,0,0,0.1)';
               }}
             >
-              <div style={{ height: '300px', width: '100%', overflow: 'hidden', position: 'relative' }}>
+              <div style={{ height: '400px', width: '100%', overflow: 'hidden', position: 'relative' }}>
                 <img
                   src={doctorPhoto}
                   alt={doctor.name}

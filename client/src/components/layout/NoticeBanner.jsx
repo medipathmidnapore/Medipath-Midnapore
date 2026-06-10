@@ -7,16 +7,6 @@ export default function NoticeBanner() {
   const [dismissedImportant, setDismissedImportant] = useState({});
 
   useEffect(() => {
-    // Load dismissed important notices from local storage
-    const saved = localStorage.getItem('medipath_dismissed_notices');
-    if (saved) {
-      try {
-        setDismissedImportant(JSON.parse(saved));
-      } catch (e) {
-        // ignore
-      }
-    }
-
     // Fetch active notices
     loadNotices();
   }, []);
@@ -35,7 +25,6 @@ export default function NoticeBanner() {
   const handleDismissImportant = (noticeId) => {
     const updated = { ...dismissedImportant, [noticeId]: true };
     setDismissedImportant(updated);
-    localStorage.setItem('medipath_dismissed_notices', JSON.stringify(updated));
   };
 
   const activeImportantNotices = notices.filter(

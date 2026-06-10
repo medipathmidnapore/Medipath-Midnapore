@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, HeartPulse, Activity, Brain, Droplets, Bone, Stethoscope, ArrowRight, TestTube2, Thermometer } from 'lucide-react';
+import { Search, Dna, Bone, Syringe, ArrowRight, Thermometer, Droplet } from 'lucide-react';
+import { GiKidneys, GiLiver, GiHeartOrgan } from 'react-icons/gi';
 
 const categories = [
-  { name: 'Heart', icon: <HeartPulse size={36} color="#ef4444" />, bg: '#fee2e2' },
-  { name: 'Liver', icon: <Activity size={36} color="#f59e0b" />, bg: '#fef3c7' },
-  { name: 'Kidney', icon: <Droplets size={36} color="#3b82f6" />, bg: '#dbeafe' },
-  { name: 'Thyroid/Hormone', icon: <Brain size={36} color="#8b5cf6" />, bg: '#ede9fe' },
-  { name: 'Diabetes', icon: <Stethoscope size={36} color="#10b981" />, bg: '#d1fae5' },
+  { name: 'Heart', icon: <GiHeartOrgan size={36} color="#ef4444" />, bg: '#fee2e2' },
+  { name: 'Liver', icon: <GiLiver size={36} color="#f59e0b" />, bg: '#fef3c7' },
+  { name: 'Kidney', icon: <GiKidneys size={36} color="#3b82f6" />, bg: '#dbeafe' },
+  { name: 'Thyroid/Hormone', icon: <Dna size={36} color="#8b5cf6" />, bg: '#ede9fe' },
+  { name: 'Diabetes', icon: <Syringe size={36} color="#10b981" />, bg: '#d1fae5' },
   { name: 'Bone', icon: <Bone size={36} color="#64748b" />, bg: '#f1f5f9' },
-  { name: 'Anemia', icon: <TestTube2 size={36} color="#dc2626" />, bg: '#fecaca' },
+  { name: 'Anemia', icon: <Droplet size={36} fill="#dc2626" color="#dc2626" />, bg: '#fecaca' },
   { name: 'Fever', icon: <Thermometer size={36} color="#ea580c" />, bg: '#ffedd5' },
 ];
 
