@@ -4,27 +4,11 @@ import QuickNavigationSection from '../components/sections/QuickNavigationSectio
 import TestSearchSection from '../components/sections/TestSearchSection';
 import DoctorsSection from '../components/sections/DoctorsSection';
 import ServicesSection from '../components/sections/ServicesSection';
+import TestimonialsSection from '../components/sections/TestimonialsSection';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Shield, Star, Clock, Quote } from 'lucide-react';
+import { ArrowRight, Shield, Star, Clock } from 'lucide-react';
 
 
-const reviews = [
-  {
-    name: 'Dharamdas Murmu',
-    text: '"Very good pathology for blood and urine test... and price are very fare"',
-    rating: 5,
-  },
-  {
-    name: 'Sasanka Sekhar Sau',
-    text: '"This Diagnostic center is trustful and punctual in delivery of reports."',
-    rating: 5,
-  },
-  {
-    name: 'Subhankar Dutta',
-    text: '"Timely report delivery. Perfect place."',
-    rating: 5,
-  },
-];
 
 export default function HomePage() {
   return (
@@ -47,41 +31,11 @@ export default function HomePage() {
         <DoctorsSection />
         <ServicesSection />
 
-        {/* Why Choose Us */}
+        <TestimonialsSection />
+
+        {/* Why Choose Us / CTA */}
         <section className="section" style={{ background: 'var(--color-bg)' }}>
           <div className="container">
-
-            {/* Patient Reviews */}
-            <div style={{ marginBottom: '4rem' }}>
-              <h3 style={{ textAlign: 'center', marginBottom: '2rem', fontSize: '1.5rem' }}>
-                What Patients Are Saying
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem' }}>
-                {reviews.map((review, i) => (
-                  <div
-                    key={i}
-                    style={{ 
-                      padding: '2rem',
-                      background: '#ffffff',
-                      borderRadius: '1rem',
-                      boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.04)',
-                      border: '1px solid rgba(0,0,0,0.03)',
-                    }}
-                  >
-                    <div style={{ display: 'flex', gap: '2px', marginBottom: '1rem' }}>
-                      {Array.from({ length: review.rating }).map((_, s) => (
-                        <Star key={s} size={16} color="var(--color-warning)" fill="var(--color-warning)" />
-                      ))}
-                    </div>
-                    <p style={{ fontSize: '0.9375rem', lineHeight: 1.7, color: '#334155', marginBottom: '1.25rem', fontStyle: 'italic', fontWeight: 400 }}>
-                      {review.text}
-                    </p>
-                    <p style={{ fontSize: '0.875rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>{review.name}</p>
-                    <p style={{ fontSize: '0.75rem', color: '#64748b', margin: '0.25rem 0 0 0' }}>Google Review</p>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             {/* High-Conversion CTA Banner */}
             <div

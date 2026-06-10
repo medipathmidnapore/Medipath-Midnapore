@@ -4,87 +4,68 @@ import { FileDown, FlaskConical, Home, PhoneCall } from 'lucide-react';
 const quickLinks = [
   {
     title: 'Book Collection',
-    desc: 'Home sample collection',
-    icon: <Home size={28} color="#0369a1" />,
+    desc: 'Home sample',
+    icon: Home,
     path: '/book',
-    bg: '#e0f2fe', // light blue
-    textColor: '#0369a1',
+    bg: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+    iconBg: '#0369a1',
+    textColor: '#0c4a6e',
+    accent: '#0369a1',
   },
   {
     title: 'Tests & Pricing',
-    desc: 'Explore all available tests',
-    icon: <FlaskConical size={28} color="#15803d" />,
+    desc: 'Browse Tests',
+    icon: FlaskConical,
     path: '/tests',
-    bg: '#dcfce7', // light green
-    textColor: '#15803d',
+    bg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
+    iconBg: '#15803d',
+    textColor: '#14532d',
+    accent: '#15803d',
   },
   {
     title: 'Download Reports',
-    desc: 'Get your digital results',
-    icon: <FileDown size={28} color="#9d174d" />,
+    desc: 'Digital results',
+    icon: FileDown,
     path: '/reports',
-    bg: '#fce7f3', // light pink
-    textColor: '#9d174d',
+    bg: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)',
+    iconBg: '#9d174d',
+    textColor: '#831843',
+    accent: '#9d174d',
   },
   {
     title: 'Call Support',
     desc: '+91 90832 76651',
-    icon: <PhoneCall size={28} color="#c2410c" />,
+    icon: PhoneCall,
     path: 'tel:+919083276651',
     isExternal: true,
-    bg: '#ffedd5', // light orange
-    textColor: '#c2410c',
+    bg: 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)',
+    iconBg: '#c2410c',
+    textColor: '#7c2d12',
+    accent: '#c2410c',
   },
 ];
 
 export default function QuickNavigationSection() {
   return (
-    <section style={{ padding: '0', marginTop: '-4rem', position: 'relative', zIndex: 10, marginBottom: '2rem' }}>
+    <section className="quick-nav-section">
       <div className="container">
         <div className="quick-nav-grid">
           {quickLinks.map((link, i) => {
+            const IconComponent = link.icon;
+
             const content = (
-              <div
-                style={{
-                  background: link.bg,
-                  borderRadius: '1rem',
-                  padding: '1.5rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  color: link.textColor,
-                  textDecoration: 'none',
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-                  border: '1px solid rgba(0,0,0,0.05)',
-                }}
-              >
-                <div 
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
+              <div className="quick-nav-card" style={{ background: link.bg }}>
+                <div
+                  className="quick-nav-icon-wrap"
+                  style={{ background: link.iconBg }}
                 >
-                  {link.icon}
+                  <IconComponent size={20} color="#ffffff" strokeWidth={2.2} />
                 </div>
-                
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ 
-                    fontSize: '1.125rem', 
-                    fontWeight: 700, 
-                    margin: '0 0 0.25rem 0', 
-                    color: link.textColor,
-                  }}>
+                <div className="quick-nav-text">
+                  <h3 className="quick-nav-title" style={{ color: link.textColor }}>
                     {link.title}
                   </h3>
-                  <p style={{ 
-                    fontSize: '0.875rem', 
-                    margin: 0, 
-                    color: link.textColor,
-                    opacity: 0.8,
-                    fontWeight: 500,
-                  }}>
+                  <p className="quick-nav-desc" style={{ color: link.accent }}>
                     {link.desc}
                   </p>
                 </div>

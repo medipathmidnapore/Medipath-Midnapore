@@ -1,120 +1,136 @@
 import { Outlet, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical, RefreshCw } from 'lucide-react';
+import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical, RefreshCw, Menu, X, Settings } from 'lucide-react';
 
-const sidebarLinks = [
-  { label: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={18} /> },
-  { label: 'Bookings', path: '/admin/bookings', icon: <ClipboardList size={18} /> },
-  { label: 'Test Catalog', path: '/admin/tests', icon: <FlaskConical size={18} /> },
-  { label: 'Notice Board', path: '/admin/notices', icon: <FileText size={18} /> },
-  { label: 'Settings', path: '/admin/settings', icon: <ClipboardList size={18} /> },
+const navLinks = [
+  { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+  { label: 'Bookings',  path: '/admin/bookings',  icon: ClipboardList },
+  { label: 'Tests',     path: '/admin/tests',      icon: FlaskConical },
+  { label: 'Notices',   path: '/admin/notices',    icon: FileText },
+  { label: 'Settings',  path: '/admin/settings',   icon: Settings },
 ];
 
 export default function AdminLayout() {
   const { logout, isAdmin } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Auto refresh every 10 minutes (600000 ms)
+  // Auto refresh every 10 minutes
   useEffect(() => {
     if (!isAdmin) return;
-    const timer = setInterval(() => {
-      window.location.reload();
-    }, 600000);
+    const timer = setInterval(() => window.location.reload(), 600000);
     return () => clearInterval(timer);
   }, [isAdmin]);
 
-  if (!isAdmin) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  if (!isAdmin) return <Navigate to="/admin/login" replace />;
 
   const handleLogout = () => {
     logout();
     navigate('/admin/login');
   };
 
+  const currentPage = navLinks.find(l => location.pathname.startsWith(l.path))?.label ?? 'Admin';
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--color-bg)' }}>
-      {/* Sidebar */}
-      <aside style={{ width: '260px', background: 'white', borderRight: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--color-border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', color: 'var(--color-primary)' }}>
-            <FlaskConical size={24} />
-            <div>
-              <div style={{ fontWeight: 800, lineHeight: 1.1 }}>Medipath Admin</div>
-              <div style={{ fontSize: '0.6875rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>Panel</div>
-            </div>
+    <div className="admin-shell">
+
+      {/* ── Sidebar overlay (mobile) ── */}
+      {sidebarOpen && (
+        <div className="admin-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
+      {/* ── Sidebar ── */}
+      <aside className={`admin-sidebar ${sidebarOpen ? 'admin-sidebar--open' : ''}`}>
+        {/* Brand */}
+        <div className="admin-brand">
+          <div className="admin-brand-icon">
+            <FlaskConical size={20} color="var(--color-primary)" />
           </div>
+          <div>
+            <div className="admin-brand-name">Medipath Admin</div>
+            <div className="admin-brand-sub">Management Panel</div>
+          </div>
+          {/* Close button — mobile only */}
+          <button className="admin-sidebar-close" onClick={() => setSidebarOpen(false)}>
+            <X size={18} />
+          </button>
         </div>
 
-        <nav style={{ padding: '1.5rem 1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          {sidebarLinks.map((link) => {
-            const isActive = location.pathname.startsWith(link.path);
+        {/* Nav links */}
+        <nav className="admin-nav">
+          {navLinks.map(({ label, path, icon: Icon }) => {
+            const active = location.pathname.startsWith(path);
             return (
               <Link
-                key={link.path}
-                to={link.path}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '0.75rem',
-                  padding: '0.75rem 1rem', borderRadius: 'var(--radius)',
-                  fontWeight: isActive ? 600 : 500,
-                  color: isActive ? 'var(--color-primary)' : 'var(--color-text-muted)',
-                  background: isActive ? 'var(--color-primary-50)' : 'transparent',
-                  transition: 'all var(--transition)'
-                }}
-                onMouseEnter={(e) => { if (!isActive) { e.currentTarget.style.background = 'var(--color-bg-alt)'; e.currentTarget.style.color = 'var(--color-text)'; } }}
-                onMouseLeave={(e) => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--color-text-muted)'; } }}
+                key={path}
+                to={path}
+                className={`admin-nav-link ${active ? 'admin-nav-link--active' : ''}`}
               >
-                {link.icon} {link.label}
+                <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                <span>{label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div style={{ padding: '1.5rem 1rem', borderTop: '1px solid var(--color-border)' }}>
-          <button
-            onClick={handleLogout}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.75rem', width: '100%',
-              padding: '0.75rem 1rem', borderRadius: 'var(--radius)',
-              fontWeight: 600, color: 'var(--color-error)',
-              background: 'transparent', cursor: 'pointer', border: 'none',
-              transition: 'background var(--transition)'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-error-bg)'}
-            onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-          >
+        {/* Logout */}
+        <div className="admin-sidebar-footer">
+          <button className="admin-logout-btn" onClick={handleLogout}>
             <LogOut size={18} /> Logout
           </button>
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {/* Top Header */}
-        <header style={{ background: 'white', borderBottom: '1px solid var(--color-border)', padding: '1rem 3rem', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-          <button 
-             onClick={() => window.location.reload()}
-             style={{ 
-               display: 'flex', alignItems: 'center', gap: '0.5rem', 
-               padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 600,
-               background: 'white', border: '1px solid var(--color-border)',
-               borderRadius: 'var(--radius)', color: 'var(--color-text)', cursor: 'pointer',
-               boxShadow: '0 2px 5px rgba(0,0,0,0.02)', transition: 'background 0.2s'
-             }}
-             onMouseEnter={(e) => e.currentTarget.style.background = 'var(--color-bg-alt)'}
-             onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+      {/* ── Main area ── */}
+      <div className="admin-main">
+        {/* Top header */}
+        <header className="admin-header">
+          {/* Hamburger — mobile only */}
+          <button className="admin-hamburger" onClick={() => setSidebarOpen(true)}>
+            <Menu size={22} />
+          </button>
+
+          <span className="admin-header-title">{currentPage}</span>
+
+          <button
+            className="admin-refresh-btn"
+            onClick={() => window.location.reload()}
+            title="Refresh data"
           >
-            <RefreshCw size={16} /> Refresh Data
+            <RefreshCw size={15} />
+            <span className="admin-refresh-text">Refresh</span>
           </button>
         </header>
 
-        {/* Dynamic Content */}
-        <main style={{ flex: 1, padding: '2rem 3rem', overflowY: 'auto' }}>
+        {/* Page content */}
+        <main className="admin-content">
           <Outlet />
         </main>
       </div>
+
+      {/* ── Bottom nav bar (mobile only) ── */}
+      <nav className="admin-bottom-nav">
+        {navLinks.map(({ label, path, icon: Icon }) => {
+          const active = location.pathname.startsWith(path);
+          return (
+            <Link
+              key={path}
+              to={path}
+              className={`admin-bottom-nav-item ${active ? 'admin-bottom-nav-item--active' : ''}`}
+            >
+              <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

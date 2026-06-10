@@ -98,13 +98,13 @@ export default function AdminNotices() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div className="admin-page-header">
         <div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Notice Board</h1>
-          <p style={{ color: 'var(--color-text-muted)' }}>Post public announcements with expiration timers</p>
+          <h1 className="admin-page-title">Notice Board</h1>
+          <p className="admin-page-subtitle">Post public announcements with expiration timers</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          <Plus size={16} /> Post New Notice
+        <button className="btn btn-primary btn-sm" onClick={() => setShowForm(!showForm)}>
+          <Plus size={16} /> Post Notice
         </button>
       </div>
 
@@ -117,7 +117,7 @@ export default function AdminNotices() {
               <input type="text" className="input" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required placeholder="e.g. Clinic Closed on Friday" />
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="admin-form-grid">
               <div>
                 <label>Notice Type</label>
                 <select className="input" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
@@ -149,7 +149,7 @@ export default function AdminNotices() {
               <label>Content</label>
               <textarea className="input" value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} required rows={3} placeholder="Provide details..."></textarea>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="admin-form-grid">
               <div>
                 <label>Display Duration</label>
                 <select className="input" value={formData.durationType} onChange={e => setFormData({...formData, durationType: e.target.value})}>
@@ -183,11 +183,11 @@ export default function AdminNotices() {
           {notices.map(notice => {
             const active = isNoticeActive(notice);
             return (
-              <div key={notice._id} className="card" style={{ padding: '1.25rem', opacity: active ? 1 : 0.6 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div key={notice._id} className="card admin-notice-card" style={{ opacity: active ? 1 : 0.6 }}>
+                <div className="admin-notice-body">
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <h3 style={{ fontSize: '1.125rem' }}>{notice.title}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                      <h3 style={{ fontSize: '1.0625rem' }}>{notice.title}</h3>
                       {notice.type === 'important' && (
                         <span style={{ fontSize: '0.75rem', background: '#fee2e2', color: '#991b1b', padding: '0.125rem 0.375rem', borderRadius: '4px', fontWeight: 600 }}>IMPORTANT</span>
                       )}
@@ -196,30 +196,28 @@ export default function AdminNotices() {
                       ) : isNoticeScheduled(notice) ? (
                         <span style={{ fontSize: '0.75rem', background: '#dbeafe', color: '#1e40af', padding: '0.125rem 0.375rem', borderRadius: '4px', fontWeight: 600 }}>Scheduled</span>
                       ) : (
-                        <span style={{ fontSize: '0.75rem', background: '#f1f5f9', color: '#475569', padding: '0.125rem 0.375rem', borderRadius: '4px', fontWeight: 600 }}>Expired/Disabled</span>
+                        <span style={{ fontSize: '0.75rem', background: '#f1f5f9', color: '#475569', padding: '0.125rem 0.375rem', borderRadius: '4px', fontWeight: 600 }}>Expired</span>
                       )}
                     </div>
-                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', marginBottom: '1rem' }}>{notice.content}</p>
-                    
-                    <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.8125rem', color: 'var(--color-text-light)', flexWrap: 'wrap' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Clock size={14} /> Created: {new Date(notice.createdAt).toLocaleString()}</span>
+                    <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9375rem', marginBottom: '0.75rem' }}>{notice.content}</p>
+                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8125rem', color: 'var(--color-text-light)', flexWrap: 'wrap' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Clock size={13} /> {new Date(notice.createdAt).toLocaleDateString()}</span>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: isNoticeScheduled(notice) ? '#2563eb' : 'inherit' }}>
-                        <AlertCircle size={14} /> 
-                        Goes Live: {new Date(notice.publishAt).toLocaleString()}
+                        <AlertCircle size={13} /> Live: {new Date(notice.publishAt).toLocaleString()}
                       </span>
                       {notice.isPermanent ? (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><AlertCircle size={14} /> Never Expires</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><AlertCircle size={13} /> Never Expires</span>
                       ) : (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><AlertCircle size={14} /> Expires: {new Date(notice.expiresAt).toLocaleString()}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><AlertCircle size={13} /> Expires: {new Date(notice.expiresAt).toLocaleString()}</span>
                       )}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '0.5rem', marginLeft: '1rem' }}>
-                    <button onClick={() => handleToggle(notice._id)} className="btn btn-outline" style={{ padding: '0.5rem', color: notice.isActive ? 'var(--color-error)' : 'var(--color-primary)' }} title={notice.isActive ? 'Disable' : 'Enable'}>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
+                    <button onClick={() => handleToggle(notice._id)} className="btn btn-outline btn-sm" style={{ color: notice.isActive ? 'var(--color-error)' : 'var(--color-primary)' }} title={notice.isActive ? 'Disable' : 'Enable'}>
                       <Power size={16} />
                     </button>
-                    <button onClick={() => handleDelete(notice._id)} className="btn btn-outline" style={{ padding: '0.5rem', color: 'var(--color-error)' }} title="Delete">
+                    <button onClick={() => handleDelete(notice._id)} className="btn btn-outline btn-sm" style={{ color: 'var(--color-error)' }} title="Delete">
                       <Trash2 size={16} />
                     </button>
                   </div>

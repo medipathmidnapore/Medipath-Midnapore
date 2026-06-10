@@ -23,9 +23,11 @@ export default function AdminBookings() {
 
   return (
     <div>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Home Collection Bookings</h1>
-        <p style={{ color: 'var(--color-text-muted)' }}>View and manage patient collection requests</p>
+      <div className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Home Collection Bookings</h1>
+          <p className="admin-page-subtitle">View and manage patient collection requests</p>
+        </div>
       </div>
 
       {loading ? (

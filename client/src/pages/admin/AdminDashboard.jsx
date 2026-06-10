@@ -40,9 +40,11 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Dashboard Overview</h1>
-        <p style={{ color: 'var(--color-text-muted)' }}>Welcome to the Medipath Proxy Admin Panel</p>
+      <div className="admin-page-header" style={{ marginBottom: '2rem' }}>
+        <div>
+          <h1 className="admin-page-title">Dashboard Overview</h1>
+          <p className="admin-page-subtitle">Welcome to the Medipath Admin Panel</p>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>

@@ -1,41 +1,65 @@
-import { Home, FileText, FlaskConical, Zap, Shield, Clock, Microscope, TestTube, HeartPulse, Droplets } from 'lucide-react';
+import { Home, FileText, FlaskConical, Zap, Shield, Clock } from 'lucide-react';
 
 const services = [
   {
-    icon: <FlaskConical size={26} color="var(--color-primary)" />,
+    icon: FlaskConical,
     title: 'Blood Tests',
-    description: 'Complete Blood Count (CBC), Lipid Profile, Thyroid, HbA1c, Vitamin D, Sugar & more. Accurate results at economical rates.',
+    description: 'CBC, Lipid Profile, Thyroid, HbA1c, Vitamin D, Blood Sugar & more — accurate results at economical rates.',
+    color: '#2563eb',
+    bg: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+    iconBg: 'linear-gradient(135deg, #2563eb, #1e3a8a)',
+    accent: '#2563eb',
   },
   {
-    icon: <FileText size={26} color="var(--color-primary)" />,
+    icon: FileText,
     title: 'Urine & Stool Analysis',
-    description: 'Routine urine examination, microscopy, stool tests — quick processing with timely digital report delivery.',
+    description: 'Routine urine examination, microscopy, and stool tests with timely digital report delivery.',
+    color: '#7c3aed',
+    bg: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+    iconBg: 'linear-gradient(135deg, #7c3aed, #5b21b6)',
+    accent: '#7c3aed',
   },
   {
-    icon: <Home size={26} color="var(--color-primary)" />,
+    icon: Home,
     title: 'Home Sample Collection',
-    description: 'Unable to visit? Book a home collection slot and our trained phlebotomist will collect your sample from your doorstep.',
+    description: 'Book a home collection slot and our trained phlebotomist will collect samples from your doorstep.',
+    color: '#0f766e',
+    bg: 'linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%)',
+    iconBg: 'linear-gradient(135deg, #0f766e, #065f46)',
+    accent: '#0f766e',
   },
   {
-    icon: <Zap size={26} color="var(--color-primary)" />,
+    icon: Zap,
     title: 'Clinical Pathology',
-    description: 'Comprehensive clinical pathology including histopathology, cytology, and microbiological testing.',
+    description: 'Comprehensive pathology including histopathology, cytology, and microbiological testing.',
+    color: '#d97706',
+    bg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
+    iconBg: 'linear-gradient(135deg, #d97706, #92400e)',
+    accent: '#d97706',
   },
   {
-    icon: <Shield size={26} color="var(--color-primary)" />,
+    icon: Shield,
     title: 'Doctor Consultations',
-    description: 'In-person consultations with Dr. A.K. Maiti & Dr. Roma Basu Maiti. New patients welcome. Appointment recommended.',
+    description: 'In-person consultations with Dr. A.K. Maiti & Dr. Roma Basu Maiti. New patients welcome.',
+    color: '#dc2626',
+    bg: 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)',
+    iconBg: 'linear-gradient(135deg, #dc2626, #991b1b)',
+    accent: '#dc2626',
   },
   {
-    icon: <Clock size={26} color="var(--color-primary)" />,
+    icon: Clock,
     title: 'Open 6 Days a Week',
-    description: 'Open Mon–Wed & Fri–Sun, 7:30 AM – 8:00 PM. Plan ahead for fasting tests — call us to confirm preparation rules.',
+    description: 'Open Mon–Wed & Fri–Sun, 7:30 AM – 8:00 PM. Call us to confirm fasting test preparation.',
+    color: '#059669',
+    bg: 'linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 100%)',
+    iconBg: 'linear-gradient(135deg, #059669, #065f46)',
+    accent: '#059669',
   },
 ];
 
 export default function ServicesSection() {
   return (
-    <section className="section" style={{ background: '#f8fafc' }}>
+    <section className="services-section">
       <div className="container">
         <div className="section-header">
           <span className="section-label">Our Services</span>
@@ -48,46 +72,29 @@ export default function ServicesSection() {
           </p>
         </div>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '1.5rem',
-          }}
-        >
-          {services.map((service, i) => (
-            <div key={i}>
-              <div
-                style={{
-                  display: 'block',
-                  padding: '2.5rem',
-                  background: '#ffffff',
-                  borderRadius: '1rem',
-                  boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.04)',
-                  border: '1px solid rgba(0,0,0,0.03)',
-                  height: '100%',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '1.5rem',
-                    width: '4rem',
-                    height: '4rem',
-                    background: 'var(--color-primary-50)',
-                    borderRadius: '50%',
-                    border: '1px solid rgba(30, 58, 138, 0.05)',
-                  }}
-                >
-                  {service.icon}
+        <div className="services-grid">
+          {services.map((service, i) => {
+            const IconComponent = service.icon;
+            return (
+              <div key={i} className="service-card" style={{ '--card-accent': service.accent, '--card-bg': service.bg }}>
+                <div className="service-card-inner" style={{ background: service.bg }}>
+                  <div
+                    className="service-icon-wrap"
+                    style={{ background: service.iconBg }}
+                  >
+                    <IconComponent size={20} color="#ffffff" strokeWidth={2} />
+                  </div>
+                  <h3 className="service-title" style={{ color: service.color }}>
+                    {service.title}
+                  </h3>
+                  <p className="service-desc">
+                    {service.description}
+                  </p>
+                  <div className="service-card-bar" style={{ background: service.iconBg }} />
                 </div>
-                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', color: '#0f172a', fontWeight: 700, letterSpacing: '-0.01em' }}>{service.title}</h3>
-                <p style={{ fontSize: '0.9375rem', lineHeight: 1.7, color: '#475569', fontWeight: 400, margin: 0 }}>{service.description}</p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
