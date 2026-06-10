@@ -39,7 +39,8 @@ export default function TestSearchSection() {
       setIsSearching(true);
       setShowDropdown(true);
       const timer = setTimeout(() => {
-        fetch(`/api/tests?search=${encodeURIComponent(searchQuery)}`)
+        const baseUrl = import.meta.env.VITE_API_URL || '/api';
+        fetch(`${baseUrl}/tests?search=${encodeURIComponent(searchQuery)}`)
           .then(res => res.json())
           .then(data => {
             if (data.success) {
