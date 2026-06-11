@@ -124,7 +124,7 @@ function ReviewCard({ review }) {
         </div>
         <div>
           <p className="testimonial-name">{review.name}</p>
-          <p className="testimonial-meta">{review.meta} · {review.time}</p>
+          <p className="testimonial-meta">{review.time}</p>
         </div>
         <div className="testimonial-google-badge" title="Google Review">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
