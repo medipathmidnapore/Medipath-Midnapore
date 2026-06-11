@@ -17,7 +17,7 @@ export default function HeroSection() {
         }}
       >
         <div className="mobile-fade-bottom"></div>
-        <div style={{ position: 'absolute', bottom: '12%', left: '8%', zIndex: 2 }}>
+        <div style={{ position: 'absolute', bottom: '12%', left: '50%', transform: 'translateX(-50%)', zIndex: 2, width: 'max-content', maxWidth: '90%' }}>
           <div style={{
             background: 'rgba(255,255,255,0.92)',
             backdropFilter: 'blur(16px)',
@@ -162,7 +162,7 @@ export default function HeroSection() {
         }}
       >
         <div className="mobile-fade-top"></div>
-        <div style={{ position: 'absolute', bottom: '12%', right: '8%', zIndex: 2 }}>
+        <div style={{ position: 'absolute', bottom: '12%', left: '50%', transform: 'translateX(-50%)', zIndex: 2, width: 'max-content', maxWidth: '90%' }}>
           <div style={{
             background: 'rgba(255,255,255,0.92)',
             backdropFilter: 'blur(16px)',
