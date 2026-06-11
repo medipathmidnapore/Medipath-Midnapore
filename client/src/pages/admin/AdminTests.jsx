@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { fetchTests, updateAdminTest, deleteAdminTest } from '../../services/api';
-import { Edit2, Plus, Trash2, Loader2, Save, X, Search, FlaskConical } from 'lucide-react';
+import { fetchTests } from '../../services/api';
+import { Loader2, Search, FlaskConical, RefreshCw, Info } from 'lucide-react';
 
 export default function AdminTests() {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({});
 
   useEffect(() => { loadTests(); }, [search]);
 
   const loadTests = async () => {
+    setLoading(true);
     try {
       const res = await fetchTests({ search });
       setTests(res.data.data);
@@ -22,35 +21,31 @@ export default function AdminTests() {
     }
   };
 
-  const handleEditClick = (test) => { setEditingId(test._id); setEditForm(test); };
-  const handleCancelEdit = () => { setEditingId(null); setEditForm({}); };
-
-  const handleSave = async (id) => {
-    try {
-      await updateAdminTest(id, editForm);
-      setEditingId(null);
-      loadTests();
-    } catch { alert('Failed to update test'); }
-  };
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Delete this test?')) {
-      try { await deleteAdminTest(id); loadTests(); }
-      catch { alert('Failed to delete test'); }
-    }
-  };
-
   return (
     <div>
       {/* Page header */}
       <div className="admin-page-header">
         <div>
           <h1 className="admin-page-title">Test Catalog</h1>
-          <p className="admin-page-subtitle">Manage diagnostic tests and pricing</p>
+          <p className="admin-page-subtitle">View all active diagnostic tests — synced from lab system</p>
         </div>
-        <button className="btn btn-primary btn-sm">
-          <Plus size={16} /> Add Test
+        <button className="btn btn-outline btn-sm" onClick={loadTests}>
+          <RefreshCw size={15} /> Refresh
         </button>
+      </div>
+
+      {/* Read-only notice */}
+      <div style={{
+        display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
+        padding: '0.875rem 1rem', background: '#eff6ff',
+        border: '1px solid var(--color-primary-100)', borderRadius: 'var(--radius)',
+        marginBottom: '1.25rem', fontSize: '0.875rem', color: '#1e3a8a',
+      }}>
+        <Info size={16} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
+        <p style={{ margin: 0, lineHeight: 1.5 }}>
+          <strong>Read-only.</strong> Test names, prices, and categories are managed automatically
+          by the main lab server via webhook sync. Changes made there will reflect here within 24 hours.
+        </p>
       </div>
 
       {/* Search */}
@@ -83,99 +78,72 @@ export default function AdminTests() {
                   <th>Category</th>
                   <th>Code</th>
                   <th>Price (₹)</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
+                  <th>TAT</th>
+                  <th>Last Synced</th>
                 </tr>
               </thead>
               <tbody>
-                {tests.map(test => {
-                  const isEditing = editingId === test._id;
-                  return (
-                    <tr key={test._id}>
-                      <td>
-                        {isEditing
-                          ? <input className="input" style={{ padding: '0.25rem 0.5rem' }} value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
-                          : <span style={{ fontWeight: 600 }}>{test.name}</span>}
-                      </td>
-                      <td>
-                        {isEditing
-                          ? <input className="input" style={{ padding: '0.25rem 0.5rem' }} value={editForm.category} onChange={e => setEditForm({ ...editForm, category: e.target.value })} />
-                          : test.category}
-                      </td>
-                      <td>
-                        {isEditing
-                          ? <input className="input" style={{ padding: '0.25rem 0.5rem', width: '80px' }} value={editForm.code} onChange={e => setEditForm({ ...editForm, code: e.target.value })} />
-                          : test.code}
-                      </td>
-                      <td>
-                        {isEditing
-                          ? <input type="number" className="input" style={{ padding: '0.25rem 0.5rem', width: '100px' }} value={editForm.price} onChange={e => setEditForm({ ...editForm, price: Number(e.target.value) })} />
-                          : <span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>₹{test.price}</span>}
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        {isEditing ? (
-                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                            <button onClick={() => handleSave(test._id)} className="btn btn-primary btn-sm"><Save size={14} /> Save</button>
-                            <button onClick={handleCancelEdit} className="btn btn-outline btn-sm"><X size={14} /></button>
-                          </div>
-                        ) : (
-                          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                            <button onClick={() => handleEditClick(test)} className="btn btn-outline btn-sm"><Edit2 size={14} /></button>
-                            <button onClick={() => handleDelete(test._id)} className="btn btn-outline btn-sm" style={{ color: 'var(--color-error)' }}><Trash2 size={14} /></button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {tests.map(test => (
+                  <tr key={test._id}>
+                    <td><span style={{ fontWeight: 600 }}>{test.name}</span></td>
+                    <td>
+                      <span style={{ background: 'var(--color-primary-50)', color: 'var(--color-primary)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8125rem', fontWeight: 600 }}>
+                        {test.category}
+                      </span>
+                    </td>
+                    <td style={{ fontFamily: 'monospace', fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>{test.code || '—'}</td>
+                    <td><span style={{ fontWeight: 700, color: 'var(--color-primary)' }}>₹{test.price}</span></td>
+                    <td style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>{test.turnaroundHours || 24}h</td>
+                    <td style={{ color: 'var(--color-text-light)', fontSize: '0.8125rem' }}>
+                      {test.lastSyncedAt ? new Date(test.lastSyncedAt).toLocaleDateString() : '—'}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-            {tests.length === 0 && <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No tests found.</div>}
+            {tests.length === 0 && (
+              <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                No tests found. Waiting for webhook sync from the lab system.
+              </div>
+            )}
           </div>
 
           {/* ── Mobile: cards ── */}
           <div className="admin-test-cards">
-            {tests.map(test => {
-              const isEditing = editingId === test._id;
-              return (
-                <div key={test._id} className="card admin-test-card">
-                  <div className="admin-test-card-icon">
-                    <FlaskConical size={18} color="var(--color-primary)" />
-                  </div>
-
-                  {isEditing ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', flex: 1 }}>
-                      <input className="input" style={{ padding: '0.5rem 0.75rem' }} value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} placeholder="Name" />
-                      <input className="input" style={{ padding: '0.5rem 0.75rem' }} value={editForm.category} onChange={e => setEditForm({ ...editForm, category: e.target.value })} placeholder="Category" />
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <input className="input" style={{ padding: '0.5rem 0.75rem', flex: 1 }} value={editForm.code} onChange={e => setEditForm({ ...editForm, code: e.target.value })} placeholder="Code" />
-                        <input type="number" className="input" style={{ padding: '0.5rem 0.75rem', width: '100px' }} value={editForm.price} onChange={e => setEditForm({ ...editForm, price: Number(e.target.value) })} placeholder="₹" />
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
-                        <button onClick={() => handleSave(test._id)} className="btn btn-primary btn-sm" style={{ flex: 1 }}><Save size={14} /> Save</button>
-                        <button onClick={handleCancelEdit} className="btn btn-outline btn-sm"><X size={14} /></button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{test.name}</div>
-                      <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.5rem' }}>
-                        {test.category} {test.code && <span style={{ fontFamily: 'monospace', background: 'var(--color-bg-alt)', padding: '0.1em 0.4em', borderRadius: '4px', marginLeft: '0.25rem' }}>{test.code}</span>}
-                      </div>
-                      <div style={{ fontWeight: 800, fontSize: '1.125rem', color: 'var(--color-primary)' }}>₹{test.price}</div>
-                    </div>
-                  )}
-
-                  {!isEditing && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-                      <button onClick={() => handleEditClick(test)} className="btn btn-outline btn-sm"><Edit2 size={14} /></button>
-                      <button onClick={() => handleDelete(test._id)} className="btn btn-outline btn-sm" style={{ color: 'var(--color-error)' }}><Trash2 size={14} /></button>
-                    </div>
-                  )}
+            {tests.map(test => (
+              <div key={test._id} className="card admin-test-card">
+                <div className="admin-test-card-icon">
+                  <FlaskConical size={18} color="var(--color-primary)" />
                 </div>
-              );
-            })}
-            {tests.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No tests found.</div>}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--color-text)', marginBottom: '0.25rem' }}>{test.name}</div>
+                  <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', marginBottom: '0.375rem' }}>
+                    <span style={{ background: 'var(--color-primary-50)', color: 'var(--color-primary)', padding: '0.1em 0.4em', borderRadius: '4px', fontWeight: 600 }}>
+                      {test.category}
+                    </span>
+                    {test.code && (
+                      <span style={{ fontFamily: 'monospace', background: 'var(--color-bg-alt)', padding: '0.1em 0.4em', borderRadius: '4px', marginLeft: '0.375rem' }}>
+                        {test.code}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontWeight: 800, fontSize: '1.0625rem', color: 'var(--color-primary)' }}>₹{test.price}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>{test.turnaroundHours || 24}h TAT</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {tests.length === 0 && (
+              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
+                No tests found. Waiting for webhook sync from the lab system.
+              </div>
+            )}
           </div>
+
+          <p style={{ textAlign: 'right', fontSize: '0.8125rem', color: 'var(--color-text-light)', marginTop: '0.75rem' }}>
+            {tests.length} active test{tests.length !== 1 ? 's' : ''} loaded
+          </p>
         </>
       )}
     </div>

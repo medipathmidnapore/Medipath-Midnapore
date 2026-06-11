@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Phone, Clock, MapPin, Menu, X, FlaskConical, Megaphone } from 'lucide-react';
+import { Phone, Clock, MapPin, Menu, X, Megaphone } from 'lucide-react';
 import { fetchActiveNotices } from '../../services/api';
+import logo from '../../assets/logo.jpeg';
 
 const navLinks = [
   { label: 'Home', path: '/' },
@@ -99,25 +100,23 @@ export default function Navbar() {
         >
           {/* Logo */}
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', textDecoration: 'none' }}>
-            <div
+            <img
+              src={logo}
+              alt="Medipath logo"
               style={{
-                width: '2.5rem',
-                height: '2.5rem',
+                width: '2.75rem',
+                height: '2.75rem',
                 borderRadius: 'var(--radius)',
-                background: 'var(--color-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                objectFit: 'cover',
+                display: 'block',
               }}
-            >
-              <FlaskConical size={18} color="white" />
-            </div>
+            />
             <div>
               <div style={{ fontWeight: 800, fontSize: '1.0625rem', letterSpacing: '-0.02em', color: 'var(--color-text)', lineHeight: 1.1 }}>
                 Medipath
               </div>
               <div style={{ fontSize: '0.6875rem', color: 'var(--color-text-muted)', fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                Diagnostic & Consultation
+                Diagnostic &amp; Consultation
               </div>
             </div>
           </Link>

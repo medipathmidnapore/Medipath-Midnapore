@@ -2,8 +2,12 @@ import Test from '../models/model.test.js';
 
 /**
  * GET /api/tests
- * Serves test data strictly from local MongoDB cache.
+ * Serves test data strictly from local MongoDB cache (populated by webhook from main server).
  * Supports optional ?search= and ?category= query params.
+ *
+ * NOTE: Tests are READ-ONLY from this proxy server.
+ *       All test creation, updates, and deletions are handled exclusively
+ *       by the main server via the /api/webhook/lab-sync endpoint.
  */
 export const getTests = async (req, res) => {
   try {
@@ -37,7 +41,7 @@ export const getTests = async (req, res) => {
 
 /**
  * GET /api/tests/categories
- * Returns distinct categories for filter UI.
+ * Returns distinct active categories for the filter UI.
  */
 export const getCategories = async (req, res) => {
   try {
@@ -48,32 +52,27 @@ export const getCategories = async (req, res) => {
   }
 };
 
-// Admin Endpoints
+// ─── All write operations below are intentionally DISABLED ───────────────────
+// Tests are managed exclusively by the main lab server via webhook (POST /api/webhook/lab-sync).
+// Do NOT expose these endpoints in the routes.
+
 export const createTest = async (req, res) => {
-  try {
-    const test = await Test.create(req.body);
-    res.status(201).json({ success: true, data: test });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  res.status(403).json({
+    success: false,
+    message: 'Test catalog is managed by the main lab server via webhook sync. Manual creation is not allowed.',
+  });
 };
 
 export const updateTest = async (req, res) => {
-  try {
-    const test = await Test.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!test) return res.status(404).json({ success: false, message: 'Test not found' });
-    res.status(200).json({ success: true, data: test });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  res.status(403).json({
+    success: false,
+    message: 'Test catalog is managed by the main lab server via webhook sync. Manual updates are not allowed.',
+  });
 };
 
 export const deleteTest = async (req, res) => {
-  try {
-    const test = await Test.findByIdAndDelete(req.params.id);
-    if (!test) return res.status(404).json({ success: false, message: 'Test not found' });
-    res.status(200).json({ success: true, message: 'Test deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+  res.status(403).json({
+    success: false,
+    message: 'Test catalog is managed by the main lab server via webhook sync. Manual deletion is not allowed.',
+  });
 };

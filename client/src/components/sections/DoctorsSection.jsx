@@ -1,22 +1,25 @@
 import { Award, GraduationCap, CheckCircle2 } from 'lucide-react';
-import doctorPhoto from '../../assets/doctorphoto.jpg';
+import doctorMale from '../../assets/doctormale.jpeg';
+import doctorFemale from '../../assets/doctorfemale.jpeg';
 
 const doctors = [
   {
-    name: 'Dr. A.K. Maiti',
-    qualifications: 'MBBS, MD (Pathology)',
-    specialty: 'Chief Consultant Pathologist',
-    experience: '20+ Years Experience',
-    description: 'Expert in clinical pathology and diagnostics, ensuring accuracy and reliability in every test report.',
-    highlights: ['Microbiology', 'Histopathology', 'Quality Control']
+    name: 'Dr. Asok Kumar Maiti',
+    qualifications: 'MBBS, MD (Path)',
+    specialty: 'Consultant Pathologist',
+    experience: '20+ Publications',
+    description: 'Ex-Pathologist, Cancer Detection Centre, District Hospital (presently Midnapur Medical College). Consultant Pathologist, B.C. Roy Technology Hospital, IIT Kharagpur. Author of more than 20 publications in national and international journals.',
+    highlights: ['Cancer Detection', 'Histopathology', 'Clinical Pathology'],
+    photo: doctorMale,
   },
   {
     name: 'Dr. Roma Basu Maiti',
-    qualifications: 'MBBS, DGO',
-    specialty: 'Consultant Gynecologist',
-    experience: '15+ Years Experience',
-    description: 'Dedicated to women\'s health, providing compassionate care and expert medical consultations.',
-    highlights: ['Obstetrics', 'Gynecology', 'Preventive Care']
+    qualifications: 'MBBS, DOMS, MS (Ophthalmology)',
+    specialty: 'Consultant Ophthalmologist',
+    experience: 'Eye Care Specialist',
+    description: 'Ex-Eye Surgeon, Midnapur Medical College & Hospital. Highly experienced ophthalmologist dedicated to preserving and restoring vision with precision and compassionate care.',
+    highlights: ['Eye Surgery', 'Ophthalmology', 'Vision Care'],
+    photo: doctorFemale,
   }
 ];
 
@@ -57,16 +60,16 @@ export default function DoctorsSection() {
                 e.currentTarget.style.boxShadow = '0 15px 30px -10px rgba(0,0,0,0.1)';
               }}
             >
-              <div style={{ height: '400px', width: '100%', overflow: 'hidden', position: 'relative' }}>
+              <div style={{ height: '520px', width: '100%', overflow: 'hidden', position: 'relative' }}>
                 <img
-                  src={doctorPhoto}
+                  src={doctor.photo}
                   alt={doctor.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', transition: 'transform 0.4s ease' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 10%', transition: 'transform 0.4s ease' }}
                   onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
                   onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   onError={(e) => { e.target.src = 'https://via.placeholder.com/400x300?text=Doctor' }}
                 />
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', background: 'linear-gradient(to top, var(--color-bg), transparent)' }}></div>
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '35%', background: 'linear-gradient(to top, var(--color-bg), transparent)' }}></div>
               </div>
               
               <div style={{ padding: '0 2.5rem 2.5rem 2.5rem', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>

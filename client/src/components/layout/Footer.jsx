@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { FlaskConical, Phone, Mail, MapPin, Clock, ArrowRight, Shield, Star } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock, ArrowRight, Shield, Star } from 'lucide-react';
+import logo from '../../assets/logo.jpeg';
 
 const quickLinks = [
   { label: 'Book Home Collection', path: '/book' },
   { label: 'Download Reports', path: '/reports' },
-  { label: 'Upload Prescription', path: '/upload' },
   { label: 'Tests & Pricing', path: '/tests' },
   { label: 'Admin Login', path: '/admin' },
 ];
@@ -32,28 +32,26 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1rem' }}>
-              <div
+              <img
+                src={logo}
+                alt="Medipath logo"
                 style={{
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  borderRadius: 'var(--radius)',
-                  background: 'var(--color-primary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  width: '2.75rem',
+                  height: '2.75rem',
+                  objectFit: 'cover',
+                  display: 'block',
+                border: '2px solid white',
                 }}
-              >
-                <FlaskConical size={18} color="white" />
-              </div>
+              />
               <div>
                 <div style={{ fontWeight: 800, color: 'white', fontSize: '1.0625rem', lineHeight: 1.1 }}>Medipath</div>
-                <div style={{ fontSize: '0.6875rem', opacity: 0.6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Diagnostic & Consultation</div>
+                <div style={{ fontSize: '0.6875rem', opacity: 0.6, letterSpacing: '0.04em', textTransform: 'uppercase' }}>Diagnostic &amp; Consultation</div>
               </div>
             </div>
 
             {/* Doctors */}
             <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-              Dr. A.K. Maiti &amp; Dr. Roma Basu Maiti
+              Dr. Asok Kumar Maiti &amp; Dr. Roma BasuMaiti
             </p>
             <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.8125rem', lineHeight: 1.6, marginBottom: '1.25rem' }}>
               Trusted pathological laboratory and healthcare clinic serving Midnapore since years. Economical rates, professional staff, hygienic facility.
@@ -174,7 +172,7 @@ export default function Footer() {
           }}
         >
           <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
-            © {year} Medipath Diagnostic & Consultation Centre · Dr. A.K. Maiti & Dr. Roma Basu Maiti
+            © {year} Medipath Diagnostic & Consultation Centre · Dr. Asok Kumar Maiti & Dr. Roma BasuMaiti
           </p>
           <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
             Shekhpura, Midnapore, WB 721101

@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Home, Star, MapPin, Award, Eye, Clock } from 'lucide-react';
+import doctorMale from '../../assets/doctormale.jpeg';
+import doctorFemale from '../../assets/doctorfemale.jpeg';
+import logo from '../../assets/logo.jpeg';
 
 export default function HeroSection() {
   return (
@@ -8,7 +11,7 @@ export default function HeroSection() {
       <div 
         className="hero-image hero-left"
         style={{
-          backgroundImage: 'url("https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=800&auto=format&fit=crop")',
+          backgroundImage: `url(${doctorMale})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center 20%',
         }}
@@ -17,7 +20,7 @@ export default function HeroSection() {
         <div style={{ position: 'absolute', bottom: '15%', left: '10%', zIndex: 2 }}>
           <div style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '1rem 1.5rem', borderRadius: '1rem', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid rgba(255,255,255,0.5)' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary-dark)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Award size={20} /> Dr. A.K. Maiti
+              <Award size={20} /> Dr. Asok Kumar Maiti
             </h3>
             <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem', color: 'var(--color-text-muted)', fontWeight: 600 }}>Consultant Pathologist</p>
           </div>
@@ -35,64 +38,74 @@ export default function HeroSection() {
           borderRadius: '50%'
         }}>
           
+          {/* Logo */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem' }}>
+            <img
+              src={logo}
+              alt="Medipath logo"
+              style={{
+                width: '8rem',
+                height: '8rem',
+                objectFit: 'cover',
+                border: '3px solid white',
+              }}
+            />
+          </div>
+
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1.25rem', background: '#fff', borderRadius: '2rem', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', marginBottom: '1.5rem', color: 'var(--color-primary)', fontWeight: 700, fontSize: '0.875rem', border: '1px solid var(--color-border)' }}>
             <Star size={16} fill="var(--color-warning)" color="var(--color-warning)" /> Trusted Healthcare in Midnapore
           </div>
 
-          <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 800, lineHeight: 1.1, color: 'var(--color-text)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 4rem)', fontWeight: 800, lineHeight: 1.2, color: 'var(--color-text)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
             Precision Diagnostics.<br/>
             <span className="text-gradient-primary">Expert Vision Care.</span>
           </h1>
 
-          <p style={{ fontSize: '1.125rem', color: 'var(--color-text-secondary)', lineHeight: 1.6, margin: '0 auto 2.5rem auto', maxWidth: '480px', fontWeight: 500 }}>
-            Medipath brings together advanced pathological testing and expert ophthalmology under one roof for complete family healthcare.
-          </p>
-
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-            <Link to="/book" className="btn btn-primary" style={{ padding: '1rem 2.5rem', fontSize: '1.125rem', borderRadius: '3rem', boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.4)' }}>
-              <Home size={20} /> Book Home Collection
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '0.875rem' }}>
+            <Link to="/book" className="btn btn-primary" style={{ padding: '0.625rem 1.5rem', fontSize: '0.9375rem', borderRadius: '3rem', boxShadow: '0 8px 20px -5px rgba(59, 130, 246, 0.4)' }}>
+              <Home size={16} /> Book Home Collection
             </Link>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', alignItems: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
             {/* Report Delivery Time Banner */}
             <div style={{ 
               background: 'var(--color-warning)', 
               color: 'var(--color-primary-dark)', 
-              padding: '0.625rem 1.25rem', 
+              padding: '0.375rem 0.875rem', 
               borderRadius: '2rem', 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '0.5rem',
-              fontWeight: 800,
-              fontSize: '0.875rem',
+              gap: '0.375rem',
+              fontWeight: 700,
+              fontSize: '0.75rem',
               boxShadow: '0 4px 15px rgba(251, 191, 36, 0.3)',
               textTransform: 'uppercase',
               letterSpacing: '0.5px'
             }}>
-              <Clock size={18} /> Standard Report Delivery Time: 6:00 PM
+              <Clock size={14} /> Standard Report Delivery: 6:00 PM
             </div>
 
             {/* In-House Histopathology Banner */}
             <div style={{ 
               background: 'var(--color-primary-50)', 
               border: '1px solid var(--color-primary-100)', 
-              padding: '0.875rem 1.25rem', 
-              borderRadius: '1rem', 
+              padding: '0.5rem 0.875rem', 
+              borderRadius: '0.75rem', 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '0.75rem',
+              gap: '0.5rem',
               maxWidth: '100%'
             }}>
-              <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}>
-                <Star size={16} fill="white" />
+              <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.3rem', borderRadius: '50%', display: 'flex' }}>
+                <Star size={13} fill="white" />
               </div>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontWeight: 800, color: 'var(--color-primary-dark)', fontSize: '0.9375rem', lineHeight: 1.2 }}>
+                <div style={{ fontWeight: 800, color: 'var(--color-primary-dark)', fontSize: '0.8125rem', lineHeight: 1.2 }}>
                   In-House Histopathology
                 </div>
-                <div style={{ fontSize: '0.8125rem', color: 'var(--color-primary)', fontWeight: 600 }}>
-                  We perform all biopsies & histopathology ourselves. No outsourcing!
+                <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 600 }}>
+                  All biopsies performed in-house. No outsourcing!
                 </div>
               </div>
             </div>
@@ -109,7 +122,7 @@ export default function HeroSection() {
       <div 
         className="hero-image hero-right"
         style={{
-          backgroundImage: 'url("https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=800&auto=format&fit=crop")',
+          backgroundImage: `url(${doctorFemale})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center 20%',
         }}
