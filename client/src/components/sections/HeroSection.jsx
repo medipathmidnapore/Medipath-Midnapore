@@ -44,8 +44,8 @@ export default function HeroSection() {
               src={logo}
               alt="Medipath logo"
               style={{
-                width: '8rem',
-                height: '8rem',
+                width: '5rem',
+                height: '5rem',
                 objectFit: 'cover',
                 border: '3px solid white',
               }}
@@ -56,7 +56,7 @@ export default function HeroSection() {
             <Star size={16} fill="var(--color-warning)" color="var(--color-warning)" /> Trusted Healthcare in Midnapore
           </div>
 
-          <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 4rem)', fontWeight: 800, lineHeight: 1.2, color: 'var(--color-text)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: 'clamp(1.5rem, 3vw, 4rem)', fontWeight: 800, lineHeight: 1.2, color: 'var(--color-text)', marginBottom: '1.25rem', letterSpacing: '-0.02em' }}>
             Precision Diagnostics.<br/>
             <span className="text-gradient-primary">Expert Vision Care.</span>
           </h1>
