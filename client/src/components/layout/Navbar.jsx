@@ -6,8 +6,8 @@ import logo from '../../assets/logo.jpeg';
 
 const navLinks = [
   { label: 'Home', path: '/' },
-  { label: 'Tests & Pricing', path: '/tests' },
   { label: 'Book Collection', path: '/book' },
+  { label: 'Tests & Pricing', path: '/tests' },
   { label: 'Download Reports', path: '/reports' },
 ];
 
