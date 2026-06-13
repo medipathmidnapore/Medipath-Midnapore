@@ -28,7 +28,7 @@ export default function ReportsPage() {
                   Access Your <span className="text-gradient-primary">Reports</span> Online
                 </h1>
                 <p style={{ fontSize: '1.125rem', color: 'var(--color-text-secondary)', marginBottom: '2rem', maxWidth: '480px', lineHeight: 1.6 }}>
-                  Skip the queue. Enter your Bill Number and registered mobile number to securely view and download your diagnostic test results instantly.
+                  Skip the queue. Enter your registered mobile number and sample collection date to securely view and download your diagnostic test results instantly.
                 </p>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>

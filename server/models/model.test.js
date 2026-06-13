@@ -6,16 +6,16 @@ const testSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      unique: true,
     },
     code: {
       type: String,
       trim: true,
-      default: '',
+      unique: true,
+      required: true,
     },
     price: {
       type: Number,
-      required: true,
+      default: 0,
       min: 0,
     },
     category: {

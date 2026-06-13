@@ -1,15 +1,24 @@
 import Booking from '../models/model.booking.js';
-
-// Booking Controller - Proxy to Main Server
-// We save to the local MongoDB database to keep track, then forward.
+import { sendBooking } from '../utils/service.mainserver.js';
+import { verifyRecaptcha } from '../utils/verifyRecaptcha.js';
 
 /**
  * POST /api/bookings
- * Saves locally, then forwards the booking (and optional prescription URL) to the main server.
+ * Saves to local MongoDB, then forwards the booking to the main server via SEND_BOOKING.
+ * Includes prescriptionUrl and prescriptionExtension in the payload.
  */
 export const createBooking = async (req, res) => {
   try {
-    const { patientName, mobile1, address, tests, prescriptionUrl, notes } = req.body;
+    const { patientName, mobile1, address, tests, prescriptionUrl, prescriptionExtension, notes, recaptchaToken } = req.body;
+
+    // Verify CAPTCHA
+    const isCaptchaValid = await verifyRecaptcha(recaptchaToken);
+    if (!isCaptchaValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'CAPTCHA verification failed. Please try again.',
+      });
+    }
 
     if (!patientName || !mobile1 || !address) {
       return res.status(400).json({
@@ -32,95 +41,89 @@ export const createBooking = async (req, res) => {
        address,
        tests: tests || [],
        totalAmount,
-       balanceDue: totalAmount, // Assuming unpaid initially since we removed payment from proxy
+       balanceDue: totalAmount,
        paymentMode: 'unpaid',
        prescriptionUrl: prescriptionUrl || '',
        notes: notes || '',
        status: 'pending'
     });
 
+    // Build payload for main server
     const payload = {
-       proxyBookingId: newBooking._id,
-       ...req.body
+      patientName,
+      mobile: mobile1,
+      mobile2: req.body.mobile2 || '',
+      email: req.body.email || '',
+      address,
+      notes: notes || '',
+      tests: '',
     };
 
-    // Proxy request to the main server
-    const mainServerUrl = process.env.MAIN_SERVER_URL || 'http://localhost:5001';
-    
-    console.log(`Forwarding booking to main server at ${mainServerUrl}/api/bookings`);
-    
+    // Add tests as array if present
+    if (tests && tests.length > 0) {
+      payload.tests = tests.map((t) => ({
+        testId: String(t.testId || ''),
+        name: String(t.name || ''),
+        price: String(t.price || ''),
+      }));
+      payload.totalAmount = String(totalAmount);
+    }
+
+    // Add prescription info if present
+    if (prescriptionUrl) {
+      payload.prescriptionUrl = prescriptionUrl;
+    }
+    if (prescriptionExtension) {
+      payload.prescriptionExtension = prescriptionExtension;
+    }
+
+    // Forward to main server
+    console.log(`Forwarding booking to main server for patient: ${patientName}`);
+
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
-      
-      const response = await fetch(`${mainServerUrl}/api/bookings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': process.env.MAIN_SERVER_API_KEY || ''
-        },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-         throw new Error(`Main server responded with status: ${response.status}`);
-      }
+      const mainResponse = await sendBooking(payload);
 
-      const responseData = await response.json();
-
-      // Forwarding successful, so we delete it from our local proxy DB to keep it clean!
+      // Forwarding successful — delete from local proxy DB to keep it clean
       await Booking.findByIdAndDelete(newBooking._id);
 
       res.status(201).json({
         success: true,
-        message: 'Booking forwarded successfully and removed from local proxy.',
-        data: responseData
+        message: 'Booking forwarded successfully to the main server.',
+        data: mainResponse,
       });
-      
     } catch (fetchError) {
-      console.error('Error forwarding to main server:', fetchError);
-      // Fallback response for development/testing if main server is not up or timed out
+      console.error('Error forwarding booking to main server:', fetchError.message);
+
+      // Booking is still saved locally as a fallback
       res.status(201).json({
         success: true,
-        message: 'Booking saved locally, but forwarding failed (simulated fallback).',
+        message: 'Booking saved locally. Forwarding to main server failed — our team will process it manually.',
         data: {
-          status: 'simulated_success',
-          localBookingId: newBooking._id
-        }
+          status: 'saved_locally',
+          localBookingId: newBooking._id,
+        },
       });
     }
-
   } catch (error) {
-    console.error('createBooking proxy error:', error);
+    console.error('createBooking error:', error);
     res.status(500).json({ success: false, message: 'Failed to create booking.' });
   }
 };
 
 /**
  * GET /api/bookings/:id
- * Fetch a single booking by ID.
- * Since we don't store locally, proxy this to the main server.
+ * Fetch a single booking by ID from the local proxy database.
  */
 export const getBooking = async (req, res) => {
   try {
-    const mainServerUrl = process.env.MAIN_SERVER_URL || 'http://localhost:5001';
-    const response = await fetch(`${mainServerUrl}/api/bookings/${req.params.id}`, {
-       headers: {
-         'x-api-key': process.env.MAIN_SERVER_API_KEY || ''
-       }
-    });
+    const booking = await Booking.findById(req.params.id);
 
-    if (!response.ok) {
-       return res.status(response.status).json({ success: false, message: 'Booking not found on main server.' });
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found.' });
     }
 
-    const data = await response.json();
-    res.status(200).json(data);
+    res.status(200).json({ success: true, data: booking });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch booking.' });
   }
 };
-

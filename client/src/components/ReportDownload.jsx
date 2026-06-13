@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Search, FileDown, Lock, AlertTriangle, CheckCircle, QrCode, Phone, FileText, Clock, Calendar, Hash } from 'lucide-react';
+import { Search, FileDown, Lock, AlertTriangle, CheckCircle, QrCode, Phone, Clock, Calendar, AlertCircle, ServerCrash, ShieldAlert, FileQuestion } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { lookupReport } from '../services/api';
 
 // Shared input style factory
@@ -34,16 +35,91 @@ const onBlurInput = (e) => {
   if (icon) icon.style.color = 'var(--color-text-light)';
 };
 
+/**
+ * Status code → UI configuration map for all 8 main server statuses.
+ */
+const STATUS_CONFIG = {
+  NOT_FOUND: {
+    icon: <Search size={28} />,
+    iconBg: '#f1f5f9',
+    iconColor: 'var(--color-text-light)',
+    title: 'Report Not Found',
+    borderColor: 'var(--color-border)',
+    titleColor: 'var(--color-text)',
+    defaultMessage: 'No reports found matching your details. Please verify your mobile number and collection date, then try again.',
+  },
+  MULTIPLE_FOUND: {
+    icon: <FileQuestion size={28} />,
+    iconBg: '#fef3c7',
+    iconColor: '#d97706',
+    title: 'Multiple Reports Found',
+    borderColor: '#fde68a',
+    titleColor: '#b45309',
+    defaultMessage: 'Multiple reports were found for your details. Please contact the Medipath reception at +91 90832 76651 for assistance.',
+  },
+  REPORT_PENDING: {
+    icon: <Clock size={28} />,
+    iconBg: '#fef3c7',
+    iconColor: '#d97706',
+    title: 'Report In Progress',
+    borderColor: '#fde68a',
+    titleColor: '#b45309',
+    defaultMessage: 'Your report is being processed. Please check back in a few hours.',
+  },
+  PAYMENT_PENDING: {
+    icon: <Lock size={28} />,
+    iconBg: 'var(--color-error-bg)',
+    iconColor: 'var(--color-error)',
+    title: 'Payment Due',
+    borderColor: '#fecaca',
+    titleColor: 'var(--color-error)',
+    defaultMessage: 'Your payment information is not updated on the system. Please contact Medipath.',
+  },
+  REPORT_READY: {
+    icon: <CheckCircle size={36} />,
+    iconBg: 'var(--color-success-bg)',
+    iconColor: 'var(--color-success)',
+    title: 'Report Ready!',
+    borderColor: '#bbf7d0',
+    titleColor: 'var(--color-success)',
+    defaultMessage: 'Your diagnostic report is ready. Click below to download it securely.',
+  },
+  AUTH_FAIL: {
+    icon: <ShieldAlert size={28} />,
+    iconBg: '#fee2e2',
+    iconColor: '#dc2626',
+    title: 'Authentication Issue',
+    borderColor: '#fecaca',
+    titleColor: '#dc2626',
+    defaultMessage: 'We are experiencing a temporary authentication issue. Please try again shortly or contact reception.',
+  },
+  TECH_FAIL: {
+    icon: <ServerCrash size={28} />,
+    iconBg: '#fee2e2',
+    iconColor: '#dc2626',
+    title: 'Technical Error',
+    borderColor: '#fecaca',
+    titleColor: '#dc2626',
+    defaultMessage: 'The main server encountered a technical issue. Please try again later.',
+  },
+  REQUEST_EMPTY: {
+    icon: <AlertCircle size={28} />,
+    iconBg: '#fef3c7',
+    iconColor: '#d97706',
+    title: 'Missing Information',
+    borderColor: '#fde68a',
+    titleColor: '#b45309',
+    defaultMessage: 'Some required information was missing. Please check your mobile number and collection date, then try again.',
+  },
+};
+
 export default function ReportDownload() {
   const [mobile, setMobile] = useState('');
-  // 'bill' | 'date' — which identifier the patient is using
-  const [identifierType, setIdentifierType] = useState('bill');
-  const [billNo, setBillNo] = useState('');
   const [collectionDate, setCollectionDate] = useState('');
-
-  const [status, setStatus] = useState('idle'); // idle | loading | found | not_found | error
+  const [status, setStatus] = useState('idle'); // idle | loading | found | error
   const [report, setReport] = useState(null);
   const [error, setError] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -56,36 +132,30 @@ export default function ReportDownload() {
       return;
     }
 
-    // Validate identifier
-    if (identifierType === 'bill' && !billNo.trim()) {
-      setError('Please enter your Bill Number.');
+    // Validate collection date
+    if (!collectionDate.trim()) {
+      setError('Please select your Collection Date.');
       return;
     }
-    if (identifierType === 'date' && !collectionDate.trim()) {
-      setError('Please select your Collection Date.');
+
+    if (!recaptchaToken) {
+      setError('Please complete the CAPTCHA verification.');
       return;
     }
 
     setStatus('loading');
 
-    const params = { mobile: mobile.trim() };
-    if (identifierType === 'bill') {
-      params.billNo = billNo.trim();
-    } else {
-      params.collectionDate = collectionDate.trim();
-    }
-
     try {
-      const res = await lookupReport(params);
+      const res = await lookupReport({
+        mobile: mobile.trim(),
+        collectionDate: collectionDate.trim(),
+        recaptchaToken,
+      });
       setReport(res.data.data);
       setStatus('found');
     } catch (err) {
-      if (err.response?.status === 404 || err.message?.includes('No report found')) {
-        setStatus('not_found');
-      } else {
-        setError(err.response?.data?.message || err.message || 'Failed to fetch report. Please try again.');
-        setStatus('error');
-      }
+      setError(err.response?.data?.message || err.message || 'Failed to fetch report. Please try again.');
+      setStatus('error');
     }
   };
 
@@ -131,13 +201,13 @@ export default function ReportDownload() {
               Secure Report Access
             </h3>
             <p style={{ fontSize: '0.9375rem', color: 'var(--color-text-muted)', margin: 0 }}>
-              Retrieve your diagnostic report instantly
+              Enter your mobile number and sample collection date
             </p>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '1.75rem' }}>
 
-            {/* ── Mobile (always required) ── */}
+            {/* ── Mobile (required) ── */}
             <div>
               <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.5rem' }}>
                 Mobile Number <span style={{ color: 'var(--color-error)' }}>*</span>
@@ -161,113 +231,46 @@ export default function ReportDownload() {
               </div>
             </div>
 
-            {/* ── Identifier toggle ── */}
+            {/* ── Collection Date (required) ── */}
             <div>
-              <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.625rem' }}>
-                Verify With <span style={{ color: 'var(--color-error)' }}>*</span>
+              <label style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.5rem' }}>
+                Collection Date <span style={{ color: 'var(--color-error)' }}>*</span>
               </label>
-
-              {/* Toggle pills */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  background: 'rgba(241,245,249,0.9)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '4px',
-                  marginBottom: '1rem',
-                }}
-              >
-                {[
-                  { key: 'bill', label: 'Bill Number', icon: <Hash size={15} /> },
-                  { key: 'date', label: 'Collection Date', icon: <Calendar size={15} /> },
-                ].map(({ key, label, icon }) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => { setIdentifierType(key); setError(''); }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.4rem',
-                      padding: '0.625rem 0.5rem',
-                      borderRadius: 'calc(var(--radius-md) - 4px)',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontSize: '0.8125rem',
-                      fontWeight: 700,
-                      fontFamily: 'inherit',
-                      transition: 'all 0.2s ease',
-                      background: identifierType === key
-                        ? 'white'
-                        : 'transparent',
-                      color: identifierType === key
-                        ? 'var(--color-primary)'
-                        : 'var(--color-text-muted)',
-                      boxShadow: identifierType === key
-                        ? '0 2px 8px rgba(0,0,0,0.1)'
-                        : 'none',
-                    }}
-                  >
-                    {icon} {label}
-                  </button>
-                ))}
+              <div style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', top: '50%', left: '1.25rem', transform: 'translateY(-50%)', color: 'var(--color-text-light)', pointerEvents: 'none', zIndex: 1 }}>
+                  <Calendar size={20} />
+                </div>
+                <input
+                  id="collectionDate"
+                  type="date"
+                  max={today}
+                  value={collectionDate}
+                  onChange={(e) => setCollectionDate(e.target.value)}
+                  required
+                  style={{ ...inputStyle, paddingLeft: '3.5rem', colorScheme: 'light' }}
+                  onFocus={onFocusInput}
+                  onBlur={onBlurInput}
+                />
               </div>
-
-              {/* Bill Number input */}
-              {identifierType === 'bill' && (
-                <div style={{ position: 'relative' }}>
-                  <div style={{ position: 'absolute', top: '50%', left: '1.25rem', transform: 'translateY(-50%)', color: 'var(--color-text-light)', pointerEvents: 'none' }}>
-                    <FileText size={20} />
-                  </div>
-                  <input
-                    id="billNo"
-                    type="text"
-                    placeholder="Bill No. (e.g. MED-00123)"
-                    value={billNo}
-                    onChange={(e) => setBillNo(e.target.value)}
-                    style={inputStyle}
-                    onFocus={onFocusInput}
-                    onBlur={onBlurInput}
-                  />
-                </div>
-              )}
-
-              {/* Collection Date input */}
-              {identifierType === 'date' && (
-                <div style={{ position: 'relative' }}>
-                  <div style={{ position: 'absolute', top: '50%', left: '1.25rem', transform: 'translateY(-50%)', color: 'var(--color-text-light)', pointerEvents: 'none', zIndex: 1 }}>
-                    <Calendar size={20} />
-                  </div>
-                  <input
-                    id="collectionDate"
-                    type="date"
-                    max={today}
-                    value={collectionDate}
-                    onChange={(e) => setCollectionDate(e.target.value)}
-                    style={{ ...inputStyle, paddingLeft: '3.5rem', colorScheme: 'light' }}
-                    onFocus={onFocusInput}
-                    onBlur={onBlurInput}
-                  />
-                </div>
-              )}
-
-              {/* Helper hint */}
               <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginTop: '0.5rem', marginBottom: 0, lineHeight: 1.5 }}>
-                {identifierType === 'bill'
-                  ? '💡 Your Bill Number is printed on your receipt or payment slip.'
-                  : '💡 Enter the date when your sample was collected at our centre.'}
+                💡 Enter the date when your sample was collected at our centre.
               </p>
             </div>
           </div>
 
-          {/* Error */}
           {error && (
             <div style={{ padding: '0.875rem 1rem', background: 'var(--color-error-bg)', borderRadius: 'var(--radius)', color: 'var(--color-error)', fontSize: '0.9375rem', fontWeight: 500, marginBottom: '1.25rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <AlertTriangle size={18} /> {error}
             </div>
           )}
+
+          {/* CAPTCHA Verification */}
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+            <ReCAPTCHA
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'}
+              onChange={(token) => setRecaptchaToken(token)}
+            />
+          </div>
 
           {/* Submit */}
           <button
@@ -304,75 +307,19 @@ export default function ReportDownload() {
       </div>
 
       {/* ── Results ── */}
-      <>
-        {status === 'not_found' && (
-          <div className="card" style={{ padding: '2rem', textAlign: 'center' }}>
-            <Search size={36} style={{ margin: '0 auto 1rem', color: 'var(--color-text-light)' }} />
-            <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-text)' }}>Report Not Found</h3>
-            <p style={{ fontSize: '0.9375rem' }}>
-              We couldn't find a report matching your details. Please double-check your{' '}
-              {identifierType === 'bill' ? 'Bill Number' : 'Collection Date'} and mobile number, then try again.
-            </p>
-          </div>
-        )}
-
-        {status === 'found' && report && (
-          <div>
-            {/* WAIT NORMAL */}
-            {report.status === 'wait_normal' && (
-              <div className="card" style={{ padding: '2rem', textAlign: 'center', border: '2px solid #fde68a' }}>
-                <div style={{ width: '4rem', height: '4rem', borderRadius: '50%', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
-                  <Clock size={28} color="#d97706" />
-                </div>
-                <h3 style={{ color: '#b45309', marginBottom: '0.5rem' }}>Processing</h3>
-                <p style={{ marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>
-                  {report.message || 'Your report is still being processed. Please check back later.'}
-                </p>
+      {status === 'found' && report && (
+        <div>
+          {/* REPORT_READY — special handling with download button */}
+          {report.status === 'REPORT_READY' && (
+            <div className="card" style={{ padding: '2rem', textAlign: 'center', border: `2px solid ${STATUS_CONFIG.REPORT_READY.borderColor}` }}>
+              <div style={{ width: '4.5rem', height: '4.5rem', borderRadius: '50%', background: STATUS_CONFIG.REPORT_READY.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
+                <CheckCircle size={36} color={STATUS_CONFIG.REPORT_READY.iconColor} />
               </div>
-            )}
-
-            {/* WAIT PAYMENT */}
-            {report.status === 'wait_payment' && (
-              <div className="card" style={{ padding: '2rem', textAlign: 'center', border: '2px solid #fecaca' }}>
-                <div style={{ width: '4rem', height: '4rem', borderRadius: '50%', background: 'var(--color-error-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
-                  <Lock size={28} color="var(--color-error)" />
-                </div>
-                <h3 style={{ color: 'var(--color-error)', marginBottom: '0.5rem' }}>Payment Due</h3>
-                <p style={{ marginBottom: '1rem', color: 'var(--color-text-muted)' }}>
-                  Your report is ready but requires payment to unlock.
-                </p>
-                {report.qrSrc && (
-                  <div style={{ background: 'white', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.5rem', display: 'inline-block', marginBottom: '1.25rem' }}>
-                    <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
-                      <QrCode size={16} color="var(--color-primary)" />
-                      <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text)' }}>Scan to Pay</span>
-                    </div>
-                    <img src={report.qrSrc} alt="Payment QR" style={{ width: '180px', height: '180px', display: 'block', margin: '0 auto' }} />
-                  </div>
-                )}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '1rem', background: '#fffbeb', borderRadius: 'var(--radius)', border: '1px solid #fde68a', textAlign: 'left' }}>
-                  <Phone size={16} style={{ flexShrink: 0, marginTop: '0.1rem', color: 'var(--color-warning)' }} />
-                  <p style={{ fontSize: '0.875rem', color: '#92400e', margin: 0 }}>
-                    After payment, call the clinic at{' '}
-                    <a href={`tel:${report.phone || '+919083276651'}`} style={{ color: 'var(--color-warning)', fontWeight: 700 }}>
-                      {report.phone || '+91 90832 76651'}
-                    </a>{' '}
-                    with your transaction details to unlock your report.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* READY */}
-            {report.status === 'ready' && (
-              <div className="card" style={{ padding: '2rem', textAlign: 'center', border: '2px solid #bbf7d0' }}>
-                <div style={{ width: '4.5rem', height: '4.5rem', borderRadius: '50%', background: 'var(--color-success-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
-                  <CheckCircle size={36} color="var(--color-success)" />
-                </div>
-                <h3 style={{ color: 'var(--color-success)', marginBottom: '0.5rem' }}>Report Ready!</h3>
-                <p style={{ marginBottom: '1.75rem' }}>
-                  Your diagnostic report is ready. Click below to download it securely.
-                </p>
+              <h3 style={{ color: STATUS_CONFIG.REPORT_READY.titleColor, marginBottom: '0.5rem' }}>Report Ready!</h3>
+              <p style={{ marginBottom: '1.75rem' }}>
+                {report.message || STATUS_CONFIG.REPORT_READY.defaultMessage}
+              </p>
+              {report.reportUrl && (
                 <a
                   href={report.reportUrl}
                   target="_blank"
@@ -380,16 +327,82 @@ export default function ReportDownload() {
                   className="btn btn-teal btn-lg"
                   style={{ display: 'inline-flex' }}
                 >
-                  <FileDown size={20} /> Download PDF Report
+                  <FileDown size={20} /> Download Report
                 </a>
-                <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-light)', marginTop: '1rem' }}>
-                  🔒 Secure download from our certified servers
+              )}
+              <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-light)', marginTop: '1rem' }}>
+                🔒 Secure download from our certified servers
+              </p>
+            </div>
+          )}
+
+          {/* PAYMENT_PENDING — special handling with QR code */}
+          {report.status === 'PAYMENT_PENDING' && (
+            <div className="card" style={{ padding: '2rem', textAlign: 'center', border: `2px solid ${STATUS_CONFIG.PAYMENT_PENDING.borderColor}` }}>
+              <div style={{ width: '4rem', height: '4rem', borderRadius: '50%', background: STATUS_CONFIG.PAYMENT_PENDING.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem' }}>
+                <Lock size={28} color={STATUS_CONFIG.PAYMENT_PENDING.iconColor} />
+              </div>
+              <h3 style={{ color: STATUS_CONFIG.PAYMENT_PENDING.titleColor, marginBottom: '0.5rem' }}>Payment Due</h3>
+              <p style={{ marginBottom: '1rem', color: 'var(--color-text-muted)' }}>
+                {report.message || STATUS_CONFIG.PAYMENT_PENDING.defaultMessage}
+              </p>
+              {report.qrSRC && (
+                <div style={{ background: 'white', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '1.5rem', display: 'inline-block', marginBottom: '1.25rem' }}>
+                  <div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}>
+                    <QrCode size={16} color="var(--color-primary)" />
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text)' }}>Scan to Pay</span>
+                  </div>
+                  <img src={report.qrSRC} alt="Payment QR" style={{ width: '180px', height: '180px', display: 'block', margin: '0 auto' }} />
+                </div>
+              )}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '1rem', background: '#fffbeb', borderRadius: 'var(--radius)', border: '1px solid #fde68a', textAlign: 'left' }}>
+                <Phone size={16} style={{ flexShrink: 0, marginTop: '0.1rem', color: 'var(--color-warning)' }} />
+                <p style={{ fontSize: '0.875rem', color: '#92400e', margin: 0 }}>
+                  After payment, call the centre at{' '}
+                  <a href="tel:+919083276651" style={{ color: 'var(--color-warning)', fontWeight: 700 }}>
+                    +91 90832 76651
+                  </a>{' '}
+                  with your transaction details to unlock your report.
                 </p>
               </div>
-            )}
-          </div>
-        )}
-      </>
+            </div>
+          )}
+
+          {/* All other statuses — generic card renderer */}
+          {report.status !== 'REPORT_READY' && report.status !== 'PAYMENT_PENDING' && (() => {
+            const config = STATUS_CONFIG[report.status] || STATUS_CONFIG.TECH_FAIL;
+            return (
+              <div className="card" style={{ padding: '2rem', textAlign: 'center', border: `2px solid ${config.borderColor}` }}>
+                <div style={{ width: '4rem', height: '4rem', borderRadius: '50%', background: config.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.25rem', color: config.iconColor }}>
+                  {config.icon}
+                </div>
+                <h3 style={{ color: config.titleColor, marginBottom: '0.5rem' }}>{config.title}</h3>
+                <p style={{ marginBottom: '0.5rem', color: 'var(--color-text-muted)' }}>
+                  {report.message || config.defaultMessage}
+                </p>
+                {/* For MULTIPLE_FOUND — show contact info */}
+                {report.status === 'MULTIPLE_FOUND' && (
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '1rem', background: '#fffbeb', borderRadius: 'var(--radius)', border: '1px solid #fde68a', textAlign: 'left', marginTop: '1rem' }}>
+                    <Phone size={16} style={{ flexShrink: 0, marginTop: '0.1rem', color: '#d97706' }} />
+                    <p style={{ fontSize: '0.875rem', color: '#92400e', margin: 0 }}>
+                      Please call the reception at{' '}
+                      <a href="tel:+919083276651" style={{ color: '#d97706', fontWeight: 700 }}>+91 90832 76651</a>{' '}
+                      and provide your mobile number and collection date to get your specific report.
+                    </p>
+                  </div>
+                )}
+                {/* For AUTH_FAIL / TECH_FAIL — show retry suggestion */}
+                {(report.status === 'AUTH_FAIL' || report.status === 'TECH_FAIL') && (
+                  <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-light)', marginTop: '1rem' }}>
+                    If the problem persists, please contact us at{' '}
+                    <a href="tel:+919083276651" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>+91 90832 76651</a>
+                  </p>
+                )}
+              </div>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 }

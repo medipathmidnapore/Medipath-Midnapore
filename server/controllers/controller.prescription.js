@@ -1,16 +1,31 @@
 import cloudinary from '../config/config.cloudinary.js';
 import { Readable } from 'stream';
+import path from 'path';
 
 /**
  * POST /api/prescriptions/upload
  * Accepts multipart/form-data with a file field named 'prescription'.
- * Streams directly to Cloudinary and saves the secure URL.
- * Does NOT save to local DB anymore, just returns URL for frontend to use in booking proxy.
+ * Streams directly to Cloudinary and returns the secure URL + file extension.
+ *
+ * Allowed formats: JPG, JPEG, PNG, PDF (no WEBP — main server restriction)
  */
 export const uploadPrescription = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file provided.' });
+    }
+
+    // Extract file extension
+    const originalName = req.file.originalname || '';
+    const fileExtension = path.extname(originalName).replace('.', '').toUpperCase() || '';
+
+    // Validate extension (double-check even though multer filters)
+    const allowedExtensions = ['JPG', 'JPEG', 'PNG', 'PDF'];
+    if (fileExtension && !allowedExtensions.includes(fileExtension)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid file type (.${fileExtension}). Only JPG, JPEG, PNG, and PDF are allowed.`,
+      });
     }
 
     // Determine resource type
@@ -22,7 +37,7 @@ export const uploadPrescription = async (req, res) => {
         {
           folder: 'medipath/prescriptions',
           resource_type: resourceType,
-          allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
+          allowed_formats: ['jpg', 'jpeg', 'png', 'pdf'],
         },
         (error, result) => {
           if (error) return reject(error);
@@ -44,6 +59,7 @@ export const uploadPrescription = async (req, res) => {
       message: 'Prescription uploaded successfully.',
       cloudinaryUrl: uploadResult.secure_url,
       publicId: uploadResult.public_id,
+      fileExtension, // e.g. "JPG", "PNG", "PDF"
     });
   } catch (error) {
     console.error('uploadPrescription error:', error);
@@ -59,4 +75,3 @@ export const uploadPrescription = async (req, res) => {
 export const getAllPrescriptions = async (req, res) => {
   res.status(403).json({ success: false, message: 'Prescriptions are managed by the Main Server.' });
 };
-

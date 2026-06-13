@@ -8,11 +8,11 @@ const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    const allowedMimes = ['image/jpeg', 'image/png', 'application/pdf'];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only JPG, PNG, WEBP, and PDF are allowed.'));
+      cb(new Error('Invalid file type. Only JPG, JPEG, PNG, and PDF are allowed.'));
     }
   },
 });

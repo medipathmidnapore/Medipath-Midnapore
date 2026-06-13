@@ -3,6 +3,7 @@ import {
   User, Phone, MapPin, Search, Plus, Minus, Check, ChevronRight,
   ChevronLeft, FlaskConical, CheckCircle, AlertCircle, Loader2, Upload, FileText, X
 } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { fetchTests, createBooking, uploadPrescription } from '../services/api';
 
 const STEPS = ['Patient Info', 'Tests & Prescription', 'Review & Confirm'];
@@ -15,7 +16,7 @@ const initialForm = {
   address: '',
 };
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
 const MAX_SIZE_MB = 10;
 
 export default function TestBookingWizard() {
@@ -42,6 +43,7 @@ export default function TestBookingWizard() {
   const [bookingResult, setBookingResult] = useState(null);
   const [submitError, setSubmitError] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
 
   useEffect(() => {
     if (step === 1 && allTests.length === 0) {
@@ -90,7 +92,7 @@ export default function TestBookingWizard() {
   // File Upload Handlers
   const validateAndSetFile = (f) => {
     if (!ALLOWED_TYPES.includes(f.type)) {
-      setFileError('Invalid file type. Please upload JPG, PNG, WEBP, or PDF only.');
+      setFileError('Invalid file type. Please upload JPG, JPEG, PNG, or PDF only.');
       return;
     }
     if (f.size > MAX_SIZE_MB * 1024 * 1024) {
@@ -144,10 +146,17 @@ export default function TestBookingWizard() {
   };
 
   const handleSubmit = async () => {
+    if (!recaptchaToken) {
+      setSubmitError('Please complete the CAPTCHA verification.');
+      setSubmitStatus('error');
+      return;
+    }
+    
     setSubmitStatus('loading');
     setSubmitError('');
     try {
       let prescriptionUrl = '';
+      let prescriptionExtension = '';
 
       // Upload Prescription first if exists
       if (prescriptionFile) {
@@ -162,6 +171,7 @@ export default function TestBookingWizard() {
           setUploadProgress(pct);
         });
         prescriptionUrl = uploadRes.data.cloudinaryUrl;
+        prescriptionExtension = uploadRes.data.fileExtension || '';
       }
 
       const payload = {
@@ -171,8 +181,10 @@ export default function TestBookingWizard() {
         mobile2: form.mobile2,
         address: form.address,
         tests: selectedTests.map((t) => ({ testId: t._id, name: t.name, price: t.price })),
-        prescriptionUrl, // Attach to booking
+        prescriptionUrl,
+        prescriptionExtension,
         notes,
+        recaptchaToken,
       };
 
       const res = await createBooking(payload);
@@ -354,7 +366,7 @@ export default function TestBookingWizard() {
                 <input
                   id="prescription-input"
                   type="file"
-                  accept=".jpg,.jpeg,.png,.webp,.pdf"
+                  accept=".jpg,.jpeg,.png,.pdf"
                   style={{ display: 'none' }}
                   onChange={handleFileChange}
                 />
@@ -379,7 +391,7 @@ export default function TestBookingWizard() {
                   <>
                     <Upload size={24} color="var(--color-primary)" style={{ margin: '0 auto 0.5rem' }} />
                     <p style={{ fontWeight: 600 }}>Click or Drag to Upload Prescription</p>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>JPG, PNG, PDF (Max 10MB)</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>JPG, JPEG, PNG, PDF (Max 10MB)</p>
                   </>
                 )}
               </div>
@@ -571,6 +583,14 @@ export default function TestBookingWizard() {
                   </div>
                 </div>
               )}
+
+              {/* CAPTCHA Verification */}
+              <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                <ReCAPTCHA
+                  sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'}
+                  onChange={(token) => setRecaptchaToken(token)}
+                />
+              </div>
             </div>
           )}
 

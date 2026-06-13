@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { fetchTests } from '../../services/api';
-import { Loader2, Search, FlaskConical, RefreshCw, Info } from 'lucide-react';
+import { fetchTests, syncTestsFromMainServer } from '../../services/api';
+import { Loader2, Search, FlaskConical, RefreshCw, RefreshCcw, Info, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function AdminTests() {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState(null); // { type: 'success' | 'error', text: '' }
 
   useEffect(() => { loadTests(); }, [search]);
 
@@ -21,6 +23,29 @@ export default function AdminTests() {
     }
   };
 
+  const handleSync = async () => {
+    setSyncing(true);
+    setSyncMessage(null);
+    try {
+      const res = await syncTestsFromMainServer();
+      setSyncMessage({
+        type: 'success',
+        text: `Synced ${res.data.synced || 0} tests from the main server (${res.data.inserted || 0} new, ${res.data.updated || 0} updated).`,
+      });
+      // Refresh the test list after sync
+      await loadTests();
+    } catch (err) {
+      setSyncMessage({
+        type: 'error',
+        text: err.message || 'Failed to sync tests from the main server.',
+      });
+    } finally {
+      setSyncing(false);
+      // Auto-dismiss message after 8 seconds
+      setTimeout(() => setSyncMessage(null), 8000);
+    }
+  };
+
   return (
     <div>
       {/* Page header */}
@@ -29,9 +54,18 @@ export default function AdminTests() {
           <h1 className="admin-page-title">Test Catalog</h1>
           <p className="admin-page-subtitle">View all active diagnostic tests — synced from lab system</p>
         </div>
-        <button className="btn btn-outline btn-sm" onClick={loadTests}>
-          <RefreshCw size={15} /> Refresh
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-primary btn-sm" onClick={handleSync} disabled={syncing}>
+            {syncing ? (
+              <><Loader2 size={15} style={{ animation: 'spin 0.8s linear infinite' }} /> Syncing…</>
+            ) : (
+              <><RefreshCcw size={15} /> Sync from Server</>
+            )}
+          </button>
+          <button className="btn btn-outline btn-sm" onClick={loadTests}>
+            <RefreshCw size={15} /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Read-only notice */}
@@ -43,10 +77,25 @@ export default function AdminTests() {
       }}>
         <Info size={16} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
         <p style={{ margin: 0, lineHeight: 1.5 }}>
-          <strong>Read-only.</strong> Test names, prices, and categories are managed automatically
-          by the main lab server via webhook sync. Changes made there will reflect here within 24 hours.
+          <strong>Read-only.</strong> Test names, prices, and categories are managed by the main server.
+          Click <strong>"Sync from Server"</strong> to pull the latest catalog. Tests with status "deactive" on the main server are hidden from the public site.
         </p>
       </div>
+
+      {/* Sync feedback message */}
+      {syncMessage && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          padding: '0.75rem 1rem', borderRadius: 'var(--radius)',
+          marginBottom: '1rem', fontSize: '0.875rem',
+          background: syncMessage.type === 'success' ? 'var(--color-success-bg)' : 'var(--color-error-bg)',
+          color: syncMessage.type === 'success' ? 'var(--color-success)' : 'var(--color-error)',
+          border: `1px solid ${syncMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+        }}>
+          {syncMessage.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+          {syncMessage.text}
+        </div>
+      )}
 
       {/* Search */}
       <div className="card admin-search-bar">
@@ -103,7 +152,7 @@ export default function AdminTests() {
             </table>
             {tests.length === 0 && (
               <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                No tests found. Waiting for webhook sync from the lab system.
+                No tests found. Click "Sync from Server" to pull the test catalog from the main server.
               </div>
             )}
           </div>
@@ -136,7 +185,7 @@ export default function AdminTests() {
             ))}
             {tests.length === 0 && (
               <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>
-                No tests found. Waiting for webhook sync from the lab system.
+                No tests found. Click "Sync from Server" to pull the test catalog from the main server.
               </div>
             )}
           </div>

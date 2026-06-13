@@ -47,7 +47,7 @@ export const uploadPrescription = (formData, onUploadProgress) =>
   });
 export const fetchAdminPrescriptions = () => api.get('/prescriptions');
 
-// Reports
+// Reports (mobile + collectionDate lookup)
 export const lookupReport = (params) => api.get('/reports/lookup', { params });
 export const createAdminReport = (data) => api.post('/reports', data);
 
@@ -58,6 +58,7 @@ export const fetchAdminBookings = () => api.get('/admin/bookings');
 export const createAdminTest = (data) => api.post('/tests', data);
 export const updateAdminTest = (id, data) => api.put(`/tests/${id}`, data);
 export const deleteAdminTest = (id) => api.delete(`/tests/${id}`);
+export const syncTestsFromMainServer = () => api.post('/tests/sync');
 
 // Notices
 export const fetchActiveNotices = () => api.get('/notices/active');

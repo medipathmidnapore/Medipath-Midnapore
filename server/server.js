@@ -4,10 +4,10 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import connectDB from './config/config.db.js';
+import { syncTestsFromMainServer } from './controllers/controller.test.js';
 
 // Route imports
 import testRoutes from './routes/route.test.js';
-import webhookRoutes from './routes/route.webhook.js';
 import prescriptionRoutes from './routes/route.prescription.js';
 import bookingRoutes from './routes/route.booking.js';
 import reportRoutes from './routes/route.report.js';
@@ -39,7 +39,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // ─── API Routes ───────────────────────────────────────────
 app.use('/api/tests', testRoutes);
-app.use('/api/webhook', webhookRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/reports', reportRoutes);
@@ -71,13 +70,50 @@ app.use((err, req, res, next) => {
 });
 
 // ─── Start Server ─────────────────────────────────────────
+import Test from './models/model.test.js';
+
+const SYNC_INTERVAL_HOURS = 24; // Only auto-sync if last sync was more than 24 hours ago
+
 const startServer = async () => {
   await connectDB();
   app.listen(PORT, () => {
     console.log(`🚀 Medipath Server running on http://localhost:${PORT}`);
     console.log(`📡 Environment: ${process.env.NODE_ENV}`);
     console.log(`🔗 Client URL: ${process.env.CLIENT_URL}`);
+    console.log(`🌐 Main Server: ${process.env.MAIN_SERVER_URL}`);
   });
+
+  // Auto-sync test catalog — only if last sync was more than 24 hours ago
+  // Non-blocking — server starts even if sync check fails
+  try {
+    const mostRecentTest = await Test.findOne({ lastSyncedAt: { $exists: true } })
+      .sort({ lastSyncedAt: -1 })
+      .select('lastSyncedAt')
+      .lean();
+
+    const now = Date.now();
+    const lastSync = mostRecentTest?.lastSyncedAt ? new Date(mostRecentTest.lastSyncedAt).getTime() : 0;
+    const hoursSinceSync = (now - lastSync) / (1000 * 60 * 60);
+
+    if (hoursSinceSync >= SYNC_INTERVAL_HOURS) {
+      console.log(`📋 Last test sync was ${Math.round(hoursSinceSync)}h ago — syncing from main server...`);
+      syncTestsFromMainServer()
+        .then((result) => {
+          if (result.success) {
+            console.log(`✅ Test sync complete: ${result.synced} tests synced.`);
+          } else {
+            console.warn(`⚠️  Test sync issue: ${result.message}`);
+          }
+        })
+        .catch((err) => {
+          console.warn('⚠️  Test auto-sync failed (non-critical):', err.message);
+        });
+    } else {
+      console.log(`📋 Test catalog is fresh (synced ${Math.round(hoursSinceSync)}h ago) — skipping auto-sync.`);
+    }
+  } catch (err) {
+    console.warn('⚠️  Could not check last sync time:', err.message);
+  }
 };
 
 startServer();

@@ -1,81 +1,117 @@
-// Report Controller - Proxy to Main Server
+import { verifyReport } from '../utils/service.mainserver.js';
+import { verifyRecaptcha } from '../utils/verifyRecaptcha.js';
+
+/**
+ * Status code → user-friendly message map.
+ * These are the 8 status codes the main server can return for VERIFY_REPORT_DETAILS.
+ */
+const STATUS_MESSAGES = {
+  NOT_FOUND:
+    'No reports found matching your details. Please verify your mobile number and collection date, then try again.',
+  MULTIPLE_FOUND:
+    'Multiple reports found for these details. Please contact the Medipath reception at +91 90832 76651 for assistance.',
+  REPORT_PENDING:
+    'Your report is being processed. Please check back in a few hours.',
+  PAYMENT_PENDING:
+    'Your payment information is not updated on the system. Please contact Medipath.',
+  REPORT_READY:
+    'Your report is ready! You can download it below.',
+  AUTH_FAIL:
+    'We are experiencing a temporary authentication issue with the main server. Please try again shortly or contact reception.',
+  TECH_FAIL:
+    'The main server encountered a technical issue. Please try again later.',
+  REQUEST_EMPTY:
+    'Some required information was missing. Please check your mobile number and collection date, then try again.',
+};
 
 /**
  * GET /api/reports/lookup
- * Proxies the request to the Main Server Verification API.
+ * Proxies the request to the main server's VERIFY_REPORT_DETAILS API.
  *
- * Required:  mobile
- * Optional (at least one required): billNo | collectionDate
+ * Required query params:
+ *   - mobile          10-digit mobile number
+ *   - collectionDate  Date in yyyy-MM-dd format
  *
- * Expected Main Server responses:
- * 1. { status: 'ready', reportUrl: '...' }
- * 2. { status: 'wait_normal', message: 'Report is still processing...' }
- * 3. { status: 'wait_payment', phone: '...', qrSrc: '...' }
+ * Main server response fields: api_type, status, reportUrl, message, qrSRC
  */
 export const lookupReport = async (req, res) => {
   try {
-    const { billNo, mobile, collectionDate } = req.query;
+    const { mobile, collectionDate, recaptchaToken } = req.query;
 
-    // Mobile is always required
+    // Verify CAPTCHA
+    const isCaptchaValid = await verifyRecaptcha(recaptchaToken);
+    if (!isCaptchaValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'CAPTCHA verification failed. Please try again.',
+      });
+    }
+
+    // ── Validation ──
     if (!mobile || mobile.trim().length < 10) {
       return res.status(400).json({
         success: false,
-        message: 'A valid mobile number is required.',
+        message: 'A valid 10-digit mobile number is required.',
       });
     }
 
-    // At least one identifier (billNo OR collectionDate) must be provided
-    if (!billNo?.trim() && !collectionDate?.trim()) {
+    if (!collectionDate || !collectionDate.trim()) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide either a Bill Number or your Collection Date.',
+        message: 'Collection date is required (format: yyyy-MM-dd).',
       });
     }
 
-    const mainServerUrl = process.env.MAIN_SERVER_URL || 'http://localhost:5001';
-
-    // Build query string — only include fields the patient provided
-    const queryParams = new URLSearchParams({ mobile: mobile.trim() });
-    if (billNo?.trim())         queryParams.set('billNo', billNo.trim());
-    if (collectionDate?.trim()) queryParams.set('collectionDate', collectionDate.trim());
-
-    const lookupUrl = `${mainServerUrl}/api/verify-report?${queryParams.toString()}`;
-    console.log(`Forwarding report lookup → ${lookupUrl}`);
-
-    try {
-      const response = await fetch(lookupUrl, {
-        method: 'GET',
-        headers: {
-          'x-api-key': process.env.MAIN_SERVER_API_KEY || ''
-        }
+    // Validate date format (yyyy-MM-dd)
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(collectionDate.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid date format. Please use yyyy-MM-dd (e.g. 2026-06-12).',
       });
+    }
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          return res.status(404).json({
-            success: false,
-            message: 'No report found. Please verify your details and try again.'
-          });
-        }
-        throw new Error(`Main server responded with status: ${response.status}`);
-      }
+    // ── Call Main Server ──
+    try {
+      const response = await verifyReport(mobile.trim(), collectionDate.trim());
 
-      const responseData = await response.json();
-      return res.status(200).json({ success: true, data: responseData });
+      const status = response?.status || 'TECH_FAIL';
+      const fallbackMessage = STATUS_MESSAGES[status] || STATUS_MESSAGES.TECH_FAIL;
 
-    } catch (fetchError) {
-      console.error('Error forwarding report lookup:', fetchError);
-
-      // Development fallback — simulates a response when main server is unreachable
       return res.status(200).json({
         success: true,
         data: {
-          status: 'wait_normal',
-          message: 'Simulated fallback: Report is still being processed…',
-        }
+          status,
+          reportUrl: response?.reportUrl || '',
+          message: response?.message || fallbackMessage,
+          qrSRC: response?.qrSRC || '',
+          // Pass through any additional fields the main server might send
+          ...(response?.api_type && { api_type: response.api_type }),
+        },
+      });
+    } catch (fetchError) {
+      console.error('Error calling main server for report lookup:', fetchError.message);
+
+      // If the main server returned a structured error, try to extract it
+      if (fetchError.data && fetchError.data.status) {
+        const status = fetchError.data.status;
+        return res.status(200).json({
+          success: true,
+          data: {
+            status,
+            reportUrl: fetchError.data.reportUrl || '',
+            message: fetchError.data.message || STATUS_MESSAGES[status] || STATUS_MESSAGES.TECH_FAIL,
+            qrSRC: fetchError.data.qrSRC || '',
+          },
+        });
+      }
+
+      // Generic server communication failure
+      return res.status(502).json({
+        success: false,
+        message: 'Could not reach the main server to verify your report. Please try again later.',
       });
     }
-
   } catch (error) {
     console.error('lookupReport proxy error:', error);
     res.status(500).json({ success: false, message: 'Report lookup failed.' });
