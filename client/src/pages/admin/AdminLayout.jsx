@@ -1,7 +1,8 @@
 import { Outlet, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical, RefreshCw, Menu, X, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical, RefreshCw, Menu, X, Settings, ExternalLink } from 'lucide-react';
+import logo from '../../assets/logo.jpeg';
 
 const navLinks = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
@@ -50,8 +51,8 @@ export default function AdminLayout() {
       <aside className={`admin-sidebar ${sidebarOpen ? 'admin-sidebar--open' : ''}`}>
         {/* Brand */}
         <div className="admin-brand">
-          <div className="admin-brand-icon">
-            <FlaskConical size={20} color="var(--color-primary)" />
+          <div className="admin-brand-icon" style={{ padding: 0, overflow: 'hidden', background: 'transparent', borderRadius: '50%' }}>
+            <img src={logo} alt="Medipath" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <div>
             <div className="admin-brand-name">Medipath Admin</div>
@@ -80,8 +81,11 @@ export default function AdminLayout() {
           })}
         </nav>
 
-        {/* Logout */}
-        <div className="admin-sidebar-footer">
+        {/* External Links & Logout */}
+        <div className="admin-sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <a href="https://www.getcharge.in/medipath/login.jsp" target="_blank" rel="noopener noreferrer" className="admin-logout-btn" style={{ background: 'var(--color-primary)', color: 'white', textDecoration: 'none' }}>
+            <ExternalLink size={18} /> LIS Portal
+          </a>
           <button className="admin-logout-btn" onClick={handleLogout}>
             <LogOut size={18} /> Logout
           </button>

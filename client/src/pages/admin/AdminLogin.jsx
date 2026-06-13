@@ -3,6 +3,7 @@ import { useNavigate, Navigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { adminLogin } from '../../services/api';
 import { Shield, Lock, Loader2, AlertTriangle } from 'lucide-react';
+import logo from '../../assets/logo.jpeg';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -36,8 +37,8 @@ export default function AdminLogin() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg)' }}>
       <div className="card card-elevated" style={{ width: '100%', maxWidth: '400px', padding: '2.5rem 2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ width: '3.5rem', height: '3.5rem', borderRadius: 'var(--radius)', background: 'var(--color-primary-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-            <Shield size={28} color="var(--color-primary)" />
+          <div style={{ width: '4.5rem', height: '4.5rem', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 1rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+            <img src={logo} alt="Medipath Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Admin Login</h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>Secure dashboard access</p>

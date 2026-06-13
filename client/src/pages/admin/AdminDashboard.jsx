@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchAdminBookings, fetchTests } from '../../services/api';
-import { Activity, ClipboardList, FlaskConical } from 'lucide-react';
+import { Activity, ClipboardList, FlaskConical, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
@@ -65,6 +65,9 @@ export default function AdminDashboard() {
         <div className="card" style={{ padding: '2rem' }}>
           <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><ClipboardList size={20} color="var(--color-primary)" /> Quick Actions</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <a href="https://www.getcharge.in/medipath/login.jsp" target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ justifyContent: 'flex-start', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ExternalLink size={18} /> Open LIS Portal
+            </a>
             <Link to="/admin/bookings" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>View All Bookings</Link>
             <Link to="/admin/tests" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>Manage Test Catalog</Link>
             <Link to="/admin/settings" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>Update Clinic Settings</Link>
