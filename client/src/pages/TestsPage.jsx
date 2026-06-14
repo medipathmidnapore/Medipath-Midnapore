@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import {
   Search, FlaskConical, Loader2, Clock, Microscope, TestTubes,
   Beaker, Droplets, Bug, Dna, ShieldCheck, Syringe, ScanEye,
-  HeartPulse, ChevronRight, X
+  HeartPulse, ChevronRight, X, ChevronDown
 } from 'lucide-react';
 import { fetchTests, fetchDepartments } from '../services/api';
 import { Link, useLocation } from 'react-router-dom';
@@ -124,6 +124,8 @@ export default function TestsPage() {
     return new URLSearchParams(window.location.search).get('department') || 'All';
   });
 
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+
   // Sync from URL query params
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -238,7 +240,8 @@ export default function TestsPage() {
         {/* ─── Department Filters ─────────────────────────── */}
         <section className="tests-filters-section">
           <div className="container">
-            <div className="tests-dept-scroll">
+            {/* Desktop View: Chips */}
+            <div className="tests-dept-scroll hide-mobile" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem', width: '100%' }}>
               {/* All button */}
               <button
                 id="dept-filter-all"
@@ -280,6 +283,118 @@ export default function TestsPage() {
                   </button>
                 );
               })}
+            </div>
+
+            {/* Mobile View: Custom Dropdown */}
+            <div className="hide-desktop" style={{ position: 'relative' }}>
+              <button
+                onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
+                style={{
+                  width: '100%',
+                  padding: '0.875rem 1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: 'var(--color-surface)',
+                  border: '1.5px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  fontWeight: 600,
+                  fontSize: '0.9375rem',
+                  color: 'var(--color-text)',
+                  boxShadow: 'var(--shadow-sm)',
+                  cursor: 'pointer'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                  {(() => {
+                    if (activeDepartment === 'All') {
+                      return <FlaskConical size={18} color="var(--color-primary)" />;
+                    }
+                    const meta = getDeptMeta(activeDepartment);
+                    const ActiveIcon = meta.icon;
+                    return <ActiveIcon size={18} color={meta.color} />;
+                  })()}
+                  <span>{activeDepartment === 'All' ? 'All Departments' : activeDepartment}</span>
+                </div>
+                <ChevronDown 
+                  size={20} 
+                  style={{ 
+                    color: 'var(--color-text-muted)', 
+                    transition: 'transform 0.25s', 
+                    transform: isMobileDropdownOpen ? 'rotate(180deg)' : 'rotate(0)' 
+                  }} 
+                />
+              </button>
+
+              {isMobileDropdownOpen && (
+                <>
+                  <div 
+                    onClick={() => setIsMobileDropdownOpen(false)} 
+                    style={{ position: 'fixed', inset: 0, zIndex: 45 }} 
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 0.5rem)',
+                    left: 0,
+                    right: 0,
+                    background: 'white',
+                    borderRadius: 'var(--radius-md)',
+                    boxShadow: 'var(--shadow-lg)',
+                    border: '1px solid var(--color-border)',
+                    zIndex: 50,
+                    maxHeight: '320px',
+                    overflowY: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '0.5rem',
+                    animation: 'fadeInUp 0.2s ease-out'
+                  }}>
+                    <button
+                      onClick={() => { setActiveDepartment('All'); setIsMobileDropdownOpen(false); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.75rem',
+                        padding: '0.75rem 1rem', width: '100%',
+                        background: activeDepartment === 'All' ? 'var(--color-primary-50)' : 'transparent',
+                        border: 'none', borderRadius: 'var(--radius-sm)',
+                        color: activeDepartment === 'All' ? 'var(--color-primary)' : 'var(--color-text)',
+                        fontWeight: activeDepartment === 'All' ? 700 : 500,
+                        cursor: 'pointer', textAlign: 'left',
+                        transition: 'background 0.2s'
+                      }}
+                    >
+                      <FlaskConical size={18} color={activeDepartment === 'All' ? 'var(--color-primary)' : 'var(--color-text-muted)'} />
+                      <span>All Departments</span>
+                      <span style={{ marginLeft: 'auto', fontSize: '0.8125rem', background: activeDepartment === 'All' ? 'var(--color-primary)' : 'var(--color-bg-alt)', color: activeDepartment === 'All' ? 'white' : 'var(--color-text-muted)', padding: '0.1rem 0.6rem', borderRadius: '1rem', fontWeight: 600 }}>{totalCount}</span>
+                    </button>
+
+                    {departments.map((dept) => {
+                      const meta = getDeptMeta(dept);
+                      const Icon = meta.icon;
+                      const isActive = activeDepartment === dept;
+                      return (
+                        <button
+                          key={dept}
+                          onClick={() => { setActiveDepartment(dept); setIsMobileDropdownOpen(false); }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '0.75rem',
+                            padding: '0.75rem 1rem', width: '100%',
+                            background: isActive ? meta.bg : 'transparent',
+                            border: 'none', borderRadius: 'var(--radius-sm)',
+                            color: isActive ? meta.color : 'var(--color-text)',
+                            fontWeight: isActive ? 700 : 500,
+                            cursor: 'pointer', textAlign: 'left',
+                            transition: 'background 0.2s'
+                          }}
+                        >
+                          <Icon size={18} color={isActive ? meta.color : 'var(--color-text-muted)'} />
+                          <span>{dept}</span>
+                          <span style={{ marginLeft: 'auto', fontSize: '0.8125rem', background: isActive ? meta.color : 'var(--color-bg-alt)', color: isActive ? 'white' : 'var(--color-text-muted)', padding: '0.1rem 0.6rem', borderRadius: '1rem', fontWeight: 600 }}>{deptCounts[dept] || 0}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </section>

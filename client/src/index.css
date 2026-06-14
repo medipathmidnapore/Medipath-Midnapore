@@ -1607,15 +1607,10 @@ label {
 
 .tests-dept-scroll {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 0.5rem;
-  overflow-x: auto;
   padding: 0.25rem 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.tests-dept-scroll::-webkit-scrollbar {
-  display: none;
 }
 
 /* ─── Department Chip ─────────────────────────────────────────── */
