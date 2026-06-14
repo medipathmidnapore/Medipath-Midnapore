@@ -8,7 +8,7 @@ const doctors = [
     qualifications: 'MBBS, MD (Path)',
     specialty: 'Consultant Pathologist',
     experience: '35+ Years Experience',
-    description: 'Ex-Pathologist, Cancer Detection Centre, District Hospital (presently Midnapur Medical College). Consultant Pathologist, B.C. Roy Technology Hospital, IIT Kharagpur. Author of more than 20 publications in national and international journals.',
+    description: 'Ex-Pathologist, Cancer Detection Centre, District Hospital (presently Midnapur Medical College). Consultant Pathologist, B.C. Roy Technology Hospital, IIT Kharagpur. Author of more than 12 publications in national and international journals.',
     highlights: ['Cancer Detection', 'Histopathology', 'Clinical Pathology'],
     photo: doctorMale,
   },

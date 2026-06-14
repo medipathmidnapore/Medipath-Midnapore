@@ -514,7 +514,12 @@ export default function TestBookingWizard() {
 
               {/* Patient Summary */}
               <div className="card" style={{ padding: '1.25rem', marginBottom: '1.25rem', background: 'var(--color-bg-alt)' }}>
-                <h4 style={{ fontSize: '0.9375rem', marginBottom: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.8rem' }}>Patient Details</h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <h4 style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.8rem' }}>Patient Details</h4>
+                  <button className="btn btn-ghost" style={{ padding: '0.25rem 0.5rem', height: 'auto', fontSize: '0.8125rem' }} onClick={() => setStep(0)}>
+                    Edit
+                  </button>
+                </div>
                 <p style={{ fontWeight: 700, color: 'var(--color-text)', marginBottom: '0.25rem' }}>{form.patientName}</p>
                 <p style={{ fontSize: '0.9rem' }}>📱 {form.mobile1}{form.mobile2 && ` · ${form.mobile2}`}</p>
                 {form.email && <p style={{ fontSize: '0.9rem' }}>✉️ {form.email}</p>}
@@ -523,9 +528,14 @@ export default function TestBookingWizard() {
 
               {/* Items Summary */}
               <div className="card" style={{ padding: '1.25rem', marginBottom: '1.25rem' }}>
-                <h4 style={{ fontSize: '0.8rem', marginBottom: '0.75rem', color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  Request Details
-                </h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                  <h4 style={{ margin: 0, color: 'var(--color-text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.8rem' }}>
+                    Request Details
+                  </h4>
+                  <button className="btn btn-ghost" style={{ padding: '0.25rem 0.5rem', height: 'auto', fontSize: '0.8125rem' }} onClick={() => setStep(1)}>
+                    Edit
+                  </button>
+                </div>
                 
                 {prescriptionFile && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: selectedTests.length > 0 ? '1rem' : '0' }}>
