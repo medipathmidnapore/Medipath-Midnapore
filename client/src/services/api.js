@@ -34,6 +34,7 @@ api.interceptors.response.use(
 // Tests
 export const fetchTests = (params = {}) => api.get('/tests', { params });
 export const fetchCategories = () => api.get('/tests/categories');
+export const fetchDepartments = () => api.get('/tests/departments');
 
 // Bookings
 export const createBooking = (data) => api.post('/bookings', data);

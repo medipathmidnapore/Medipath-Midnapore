@@ -1525,3 +1525,420 @@ label {
     display: none;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   TESTS & PRICING PAGE — Department Filters & Test Cards
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Hero ────────────────────────────────────────────────────── */
+.tests-hero {
+  background: linear-gradient(145deg, #f0f7ff 0%, #e8f4fd 40%, #f8fafc 100%);
+  border-bottom: 1px solid var(--color-border);
+  padding: 3rem 0 2.5rem;
+}
+
+.tests-hero-content {
+  max-width: 640px;
+}
+
+/* ─── Search ──────────────────────────────────────────────────── */
+.tests-search-wrap {
+  position: relative;
+  max-width: 520px;
+}
+
+.tests-search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-light);
+  pointer-events: none;
+}
+
+.tests-search-input {
+  padding-left: 3rem !important;
+  padding-right: 2.75rem !important;
+  font-size: 1rem !important;
+  background: white !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow) !important;
+  border-color: transparent !important;
+}
+
+.tests-search-input:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: var(--shadow-md), 0 0 0 3px rgba(26, 86, 219, 0.08) !important;
+}
+
+.tests-search-clear {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-bg-alt);
+  border: none;
+  border-radius: 50%;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: all var(--transition);
+}
+
+.tests-search-clear:hover {
+  background: var(--color-border);
+  color: var(--color-text);
+}
+
+/* ─── Department Filter Section ───────────────────────────────── */
+.tests-filters-section {
+  background: white;
+  border-bottom: 1px solid var(--color-border);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-shadow: 0 2px 12px -4px rgba(0, 0, 0, 0.06);
+}
+
+.tests-dept-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.25rem 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tests-dept-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Department Chip ─────────────────────────────────────────── */
+.dept-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.dept-chip:hover {
+  border-color: var(--dept-border, var(--color-primary-100));
+  background: var(--dept-bg, var(--color-primary-50));
+  color: var(--dept-color, var(--color-primary));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.1);
+}
+
+.dept-chip-active {
+  background: var(--color-primary) !important;
+  border-color: transparent !important;
+  color: white !important;
+  box-shadow: 0 4px 14px -2px rgba(26, 86, 219, 0.4);
+}
+
+.dept-chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.375rem;
+  padding: 0 0.375rem;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: var(--color-bg-alt);
+  color: var(--color-text-muted);
+}
+
+/* ─── Active Filter Bar ───────────────────────────────────────── */
+.tests-active-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-primary-50);
+  border: 1px solid var(--color-primary-100);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+/* ─── Test Grid ───────────────────────────────────────────────── */
+.tests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* ─── Test Card ───────────────────────────────────────────────── */
+.test-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.test-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.test-card-dept-bar {
+  height: 3px;
+  width: 100%;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.test-card:hover .test-card-dept-bar {
+  opacity: 1;
+}
+
+.test-card-body {
+  padding: 1.25rem 1.5rem 1.25rem;
+}
+
+.test-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.625rem;
+}
+
+.test-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.test-card-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  margin-bottom: 0.375rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.test-card-dept-badge {
+  display: inline-block;
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid;
+}
+
+.test-card-price {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.test-card-price-value {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.test-card-price-enquiry {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.test-card-desc {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.test-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.test-card-turnaround {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.test-card-code {
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ─── Department Group ────────────────────────────────────────── */
+.tests-grouped {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.tests-dept-group {
+  position: relative;
+}
+
+.tests-dept-group-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tests-dept-group-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.25);
+}
+
+.tests-dept-group-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.tests-dept-group-count {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.tests-dept-view-all {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.tests-show-more {
+  margin-top: 1rem;
+}
+
+/* ─── Loading State ───────────────────────────────────────────── */
+.tests-loading-state {
+  padding: 5rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.tests-spinner {
+  margin: 0 auto 1rem;
+  animation: spin 0.8s linear infinite;
+  color: var(--color-primary);
+}
+
+/* ─── Empty State ─────────────────────────────────────────────── */
+.tests-empty-state {
+  padding: 5rem 2rem;
+  text-align: center;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.tests-empty-icon-wrap {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: var(--color-bg-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: var(--color-text-light);
+}
+
+/* ─── CTA ─────────────────────────────────────────────────────── */
+.tests-cta {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 2.5rem 2rem;
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .tests-hero {
+    padding: 2rem 0 1.75rem;
+  }
+
+  .tests-hero h1 {
+    font-size: 1.75rem;
+  }
+
+  .tests-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .tests-active-filter-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .tests-dept-group-header {
+    flex-wrap: wrap;
+  }
+
+  .tests-dept-view-all {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+
+  .tests-cta {
+    padding: 2rem 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .tests-hero {
+    padding: 4rem 0 3rem;
+  }
+
+  .tests-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tests-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+}

@@ -1,15 +1,17 @@
 import Test from '../models/model.test.js';
+import { DEPARTMENTS } from '../models/model.test.js';
 import { fetchTestPrices } from '../utils/service.mainserver.js';
+import { mapTestToDepartment } from '../utils/util.departmentMapper.js';
 
 /**
  * GET /api/tests
  * Serves test data from local MongoDB cache.
  * Only active tests are shown on the public frontend.
- * Supports optional ?search= and ?category= query params.
+ * Supports optional ?search=, ?category=, and ?department= query params.
  */
 export const getTests = async (req, res) => {
   try {
-    const { search, category } = req.query;
+    const { search, category, department } = req.query;
     const query = { isActive: true };
 
     if (search && search.trim()) {
@@ -17,6 +19,7 @@ export const getTests = async (req, res) => {
         { name: { $regex: search.trim(), $options: 'i' } },
         { category: { $regex: search.trim(), $options: 'i' } },
         { code: { $regex: search.trim(), $options: 'i' } },
+        { department: { $regex: search.trim(), $options: 'i' } },
       ];
     }
 
@@ -24,7 +27,11 @@ export const getTests = async (req, res) => {
       query.category = { $regex: category.trim(), $options: 'i' };
     }
 
-    const tests = await Test.find(query).sort({ category: 1, name: 1 }).lean();
+    if (department && department.trim() && department.trim().toLowerCase() !== 'all') {
+      query.department = department.trim();
+    }
+
+    const tests = await Test.find(query).sort({ department: 1, name: 1 }).lean();
 
     res.status(200).json({
       success: true,
@@ -51,12 +58,54 @@ export const getCategories = async (req, res) => {
 };
 
 /**
+ * GET /api/tests/departments
+ * Returns distinct active departments with test counts for the filter UI.
+ */
+export const getDepartments = async (req, res) => {
+  try {
+    const departments = await Test.aggregate([
+      { $match: { isActive: true } },
+      {
+        $group: {
+          _id: '$department',
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Return both the ordered list and the counts map
+    const departmentList = departments.map((d) => d._id).filter(Boolean);
+    const departmentCounts = {};
+    departments.forEach((d) => {
+      if (d._id) departmentCounts[d._id] = d.count;
+    });
+
+    res.status(200).json({
+      success: true,
+      data: departmentList,
+      counts: departmentCounts,
+    });
+  } catch (error) {
+    console.error('getDepartments error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch departments.' });
+  }
+};
+
+/**
  * Sync test catalog from the main server (GetCharge).
- * Calls GET_TEST_PRICE → maps response → bulk-upserts into MongoDB.
+ * Calls GET_TEST_PRICE → maps response → SMART incremental upsert into MongoDB.
  *
  * Main server returns tests with: name, id, price, status (active / deactive)
  *   - "active"   → isActive: true  (show on frontend)
  *   - "deactive" → isActive: false (hide from frontend)
+ *
+ * SMART SYNC RULES:
+ *   1. DO NOT mass-deactivate all tests before syncing.
+ *   2. Only update fields that come from the main server (name, price, isActive).
+ *   3. For NEW tests (not in our DB): auto-assign department via keyword mapper.
+ *   4. For EXISTING tests: preserve the department if it was manually set.
+ *   5. Only update price/name/isActive if they actually changed.
  *
  * Can be called:
  *   1. On server startup (auto-sync — once per day only)
@@ -93,50 +142,113 @@ export const syncTestsFromMainServer = async () => {
 
     console.log(`[TestSync] Received ${tests.length} tests, ${validTests.length} valid after filtering.`);
 
-    // Map main server field names (TEST_NAME, TEST_ID, TEST_PRICE, TEST_STATUS)
-    // to our local schema (name, code, price, isActive)
-    const operations = validTests.map((test) => {
+    // Fetch all existing tests from our DB (by code) for smart comparison
+    const existingTests = await Test.find({}).select('code name price isActive department').lean();
+    const existingMap = new Map();
+    existingTests.forEach((t) => existingMap.set(String(t.code), t));
+
+    // Track incoming test codes to identify removed tests
+    const incomingCodes = new Set();
+
+    let inserted = 0;
+    let updated = 0;
+    let unchanged = 0;
+
+    // Build bulk operations — only update what actually changed
+    const operations = [];
+
+    for (const test of validTests) {
       const testName = (test.TEST_NAME || test.name || '').trim();
-      const testCode = test.TEST_ID || test.code || test.id || '';
+      const testCode = String(test.TEST_ID || test.code || test.id || '');
       const testPrice = Number(test.TEST_PRICE || test.price) || 0;
       const testStatus = (test.TEST_STATUS || test.status || '').toLowerCase();
+      const isActive = testStatus === 'active';
 
-      return {
-        updateOne: {
-          filter: { code: testCode },
-          update: {
-            $set: {
-              name: testName,
-              code: testCode,
-              price: testPrice,
-              category: test.category || 'General',
-              description: test.description || '',
-              turnaroundHours: test.turnaroundHours || 24,
-              // "active" → show on frontend, anything else → hide
-              isActive: testStatus === 'active',
-              lastSyncedAt: new Date(),
+      incomingCodes.add(testCode);
+
+      const existing = existingMap.get(testCode);
+
+      if (!existing) {
+        // ── NEW TEST — auto-assign department ──
+        const autoDepartment = mapTestToDepartment(testName);
+
+        operations.push({
+          updateOne: {
+            filter: { code: testCode },
+            update: {
+              $set: {
+                name: testName,
+                code: testCode,
+                price: testPrice,
+                department: autoDepartment,
+                category: test.category || 'General',
+                description: test.description || '',
+                turnaroundHours: test.turnaroundHours || 24,
+                isActive,
+                lastSyncedAt: new Date(),
+              },
             },
+            upsert: true,
           },
-          upsert: true,
-        },
-      };
-    });
+        });
+        inserted++;
+      } else {
+        // ── EXISTING TEST — only update changed fields ──
+        const updates = {};
+        let hasChanges = false;
 
-    // Step 1: Mark ALL existing tests as deactive (will be re-activated by the upsert if they exist on main server)
-    await Test.updateMany({}, { $set: { isActive: false } });
+        if (existing.name !== testName) {
+          updates.name = testName;
+          hasChanges = true;
+        }
+        if (existing.price !== testPrice) {
+          updates.price = testPrice;
+          hasChanges = true;
+        }
+        if (existing.isActive !== isActive) {
+          updates.isActive = isActive;
+          hasChanges = true;
+        }
 
-    // Step 2: Upsert all tests from main server — this re-activates tests that exist and adds new ones
-    const result = await Test.bulkWrite(operations);
+        // Always update lastSyncedAt to track when we last checked
+        updates.lastSyncedAt = new Date();
+
+        if (hasChanges) {
+          operations.push({
+            updateOne: {
+              filter: { code: testCode },
+              update: { $set: updates },
+            },
+          });
+          updated++;
+        } else {
+          // Only update the sync timestamp
+          operations.push({
+            updateOne: {
+              filter: { code: testCode },
+              update: { $set: { lastSyncedAt: new Date() } },
+            },
+          });
+          unchanged++;
+        }
+      }
+    }
+
+    // Execute bulk operations
+    if (operations.length > 0) {
+      await Test.bulkWrite(operations);
+    }
 
     const summary = {
       success: true,
       synced: validTests.length,
-      inserted: result.upsertedCount,
-      updated: result.modifiedCount,
+      inserted,
+      updated,
+      unchanged,
     };
 
     console.log(
-      `[TestSync] ✅ Synced ${validTests.length} tests — ${result.upsertedCount} inserted, ${result.modifiedCount} updated`
+      `[TestSync] ✅ Smart sync complete — ${inserted} new, ${updated} updated, ${unchanged} unchanged (total: ${validTests.length})`
     );
 
     return summary;

@@ -1,5 +1,20 @@
 import mongoose from 'mongoose';
 
+const DEPARTMENTS = [
+  'HAEMATOLOGY',
+  'BIOCHEMISTRY',
+  'ENDOCRINOLOGY & SPECIAL',
+  'URINE EXAMINATION',
+  'STOOL EXAMINATION',
+  'SEROLOGY',
+  'HISTOPATHOLOGY',
+  'CYTOLOGY',
+  'MICROBIOLOGY',
+  'ANDROLOGY',
+  'IMMUNOLOGY',
+  'General',
+];
+
 const testSchema = new mongoose.Schema(
   {
     name: {
@@ -17,6 +32,12 @@ const testSchema = new mongoose.Schema(
       type: Number,
       default: 0,
       min: 0,
+    },
+    department: {
+      type: String,
+      trim: true,
+      enum: DEPARTMENTS,
+      default: 'General',
     },
     category: {
       type: String,
@@ -45,6 +66,8 @@ const testSchema = new mongoose.Schema(
 );
 
 testSchema.index({ name: 'text', category: 'text' });
+testSchema.index({ department: 1 });
 
 const Test = mongoose.model('Test', testSchema);
+export { DEPARTMENTS };
 export default Test;
