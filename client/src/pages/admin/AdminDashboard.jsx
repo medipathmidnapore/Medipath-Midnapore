@@ -70,7 +70,6 @@ export default function AdminDashboard() {
             </a>
             <Link to="/admin/bookings" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>View All Bookings</Link>
             <Link to="/admin/tests" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>Manage Test Catalog</Link>
-            <Link to="/admin/settings" className="btn btn-outline" style={{ justifyContent: 'flex-start' }}>Update Clinic Settings</Link>
           </div>
         </div>
       </div>
