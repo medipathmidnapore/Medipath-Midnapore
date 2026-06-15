@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical, RefreshCw, Menu, X, Settings, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, FileText, ClipboardList, LogOut, FlaskConical, RefreshCw, Menu, X, ExternalLink } from 'lucide-react';
 import logo from '../../assets/logo.jpeg';
 
 const navLinks = [
@@ -9,7 +9,6 @@ const navLinks = [
   { label: 'Bookings',  path: '/admin/bookings',  icon: ClipboardList },
   { label: 'Tests',     path: '/admin/tests',      icon: FlaskConical },
   { label: 'Notices',   path: '/admin/notices',    icon: FileText },
-  { label: 'Settings',  path: '/admin/settings',   icon: Settings },
 ];
 
 export default function AdminLayout() {
