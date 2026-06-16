@@ -49,7 +49,7 @@ const services = [
   {
     icon: Clock,
     title: 'Open 6 Days a Week',
-    description: 'Open Mon–Wed & Fri–Sun, 7:30 AM – 8:00 PM. Call us to confirm fasting test preparation.',
+    description: 'Mon–Wed & Fri–Sun: 7:30 AM – 8:00 PM Closed on Thursdays. Call us to confirm fasting test preparation.',
     color: '#059669',
     bg: 'linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 100%)',
     iconBg: 'linear-gradient(135deg, #059669, #065f46)',
@@ -68,7 +68,7 @@ export default function ServicesSection() {
             <span className="text-gradient-primary">One Trusted Centre</span>
           </h2>
           <p style={{ maxWidth: '540px', margin: '1rem auto 0', fontSize: '1.0625rem' }}>
-            From routine blood panels to clinical pathology and doctor consultations — all under one roof at Shekhpura, Midnapore.
+            From routine blood panels to clinical pathology and doctor consultations — all under one roof at MITRA COMPOUND, E/52,Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101.
           </p>
         </div>
 

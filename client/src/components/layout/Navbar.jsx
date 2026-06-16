@@ -64,12 +64,12 @@ export default function Navbar() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <MapPin size={13} />
-              Shekhpura, Midnapore, West Bengal 721101
+              MITRA COMPOUND, E/52,Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
               <Clock size={13} />
               Mon–Wed & Fri–Sun: 7:30 AM – 8:00 PM &nbsp;·&nbsp;
-              <span style={{ color: '#fca5a5', fontWeight: 600 }}>Closed Thursdays</span>
+              <span style={{ color: '#fca5a5', fontWeight: 600 }}>Closed on Thursdays</span>
             </span>
           </div>
           <a
@@ -77,7 +77,7 @@ export default function Navbar() {
             style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: '#bfdbfe', fontWeight: 600 }}
           >
             <Phone size={13} />
-            +91 90832 76651
+            +91 9083276651 / 9083276652 / 03222-275238
           </a>
         </div>
       </div>

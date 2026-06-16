@@ -17,10 +17,10 @@ export default function HomePage() {
         <title>Medipath Diagnostic & Consultation Centre — Pathological Lab in Midnapore, West Bengal</title>
         <meta
           name="description"
-          content="Medipath Diagnostic & Consultation Centre — trusted pathological laboratory in Shekhpura, Midnapore (WB 721101). Blood tests, urine tests, clinical pathology & doctor consultations by Dr. A.K. Maiti & Dr. Roma Basu Maiti. Call +91 90832 76651."
+          content="Medipath Diagnostic & Consultation Centre — trusted pathological laboratory in MITRA COMPOUND, E/52,Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101. Blood tests, urine tests, clinical pathology & doctor consultations by Dr. A.K. Maiti & Dr. Roma Basu Maiti. Call +91 9083276651 / 9083276652 / 03222-275238."
         />
         <meta property="og:title" content="Medipath Diagnostic & Consultation Centre — Midnapore" />
-        <meta property="og:description" content="Trusted pathological lab in Shekhpura, Midnapore. Budget-friendly blood tests, urine tests, clinical pathology & doctor consultations. 4.3★ on Google." />
+        <meta property="og:description" content="Trusted pathological lab in MITRA COMPOUND, E/52,Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101. Budget-friendly blood tests, urine tests, clinical pathology & doctor consultations. 4.3★ on Google." />
         <meta name="keywords" content="medipath diagnostics midnapore, pathological lab midnapore, blood test midnapore, diagnostic centre shekhpura, dr ak maiti midnapore, medipath shekhpura" />
       </Helmet>
 

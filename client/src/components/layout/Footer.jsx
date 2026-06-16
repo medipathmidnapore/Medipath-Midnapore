@@ -115,28 +115,32 @@ export default function Footer() {
                 style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}
               >
                 <Phone size={15} style={{ marginTop: '0.1rem', flexShrink: 0, color: '#60a5fa' }} />
-                +91 90832 76651
+                +91 9083276651 / 9083276652 / 03222-275238
               </a>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
+                <Phone size={15} style={{ marginTop: '0.1rem', flexShrink: 0, color: '#25D366' }} />
+                <span>WhatsApp: +91 9083276651 / 9083276652</span>
+              </div>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
                 <MapPin size={15} style={{ marginTop: '0.1rem', flexShrink: 0, color: '#60a5fa' }} />
                 <span>
                   MITRA COMPOUND, E/52,<br />
-                  Opp. Shib Mandir, Shekhpura,<br />
-                  Midnapore, West Bengal 721101
+                  Near RK Honda Service Center,<br />
+                  Opposite Shib Mandir, Shekhpura,<br />
+                  Paschim Midnapore, West Bengal -721101
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
                 <Clock size={15} style={{ marginTop: '0.1rem', flexShrink: 0, color: '#60a5fa' }} />
                 <span>
-                  Mon–Wed &amp; Fri–Sun:<br />
-                  7:30 AM – 8:00 PM<br />
+                  Mon–Wed &amp; Fri–Sun: 7:30 AM – 8:00 PM<br />
                   <span style={{ color: '#fca5a5', fontWeight: 600 }}>Closed on Thursdays</span>
                 </span>
               </div>
 
               {/* Google Maps Link */}
               <a
-                href="https://maps.google.com/?q=MITRA+COMPOUND+E/52+Shekhpura+Midnapore+West+Bengal+721101"
+                href="https://maps.google.com/?q=MITRA+COMPOUND+E/52+Near+RK+Honda+Service+Center+Opposite+Shib+Mandir+Shekhpura+Paschim+Midnapore+West+Bengal+721101"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
@@ -175,7 +179,7 @@ export default function Footer() {
             © {year} Medipath Diagnostic & Consultation Centre · Dr. Asok Kumar Maiti & Dr. Roma BasuMaiti
           </p>
           <p style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
-            Shekhpura, Midnapore, WB 721101
+            MITRA COMPOUND, E/52, Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101
           </p>
         </div>
       </div>

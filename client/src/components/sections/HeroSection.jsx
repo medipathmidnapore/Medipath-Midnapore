@@ -146,7 +146,7 @@ export default function HeroSection() {
           </div>
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>
-            <MapPin size={16} color="var(--color-primary)" /> Shekhpura, Midnapore
+            <MapPin size={16} color="var(--color-primary)" /> MITRA COMPOUND, E/52,Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101
           </div>
 
         </div>

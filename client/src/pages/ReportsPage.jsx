@@ -9,7 +9,7 @@ export default function ReportsPage() {
         <title>Download Reports — Medipath Diagnostic Centre, Midnapore</title>
         <meta
           name="description"
-          content="Download your diagnostic reports from Medipath Diagnostic & Consultation Centre, Shekhpura, Midnapore. Enter your Bill Number and mobile number to access your test results securely."
+          content="Download your diagnostic reports from Medipath Diagnostic & Consultation Centre, MITRA COMPOUND, E/52,Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101. Enter your Bill Number and mobile number to access your test results securely."
         />
       </Helmet>
 
@@ -35,7 +35,7 @@ export default function ReportsPage() {
                   {[
                     { icon: <Lock size={18} />, text: 'End-to-end Secure Access', desc: 'Your health data is completely encrypted and private.' },
                     { icon: <FileText size={18} />, text: 'Instant PDF Download', desc: 'High-quality digital copies ready for your doctor.' },
-                    { icon: <Phone size={18} />, text: '24/7 Support Available', desc: 'Call us at +91 90832 76651 if you need any assistance.' },
+                    { icon: <Phone size={18} />, text: '24/7 Support Available', desc: 'Call us at +91 9083276651 / 9083276652 / 03222-275238 if you need any assistance.' },
                   ].map((item, i) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
                       <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: '50%', background: 'var(--color-primary-50)', color: 'var(--color-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

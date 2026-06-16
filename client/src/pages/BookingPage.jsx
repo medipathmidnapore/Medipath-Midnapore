@@ -9,7 +9,7 @@ export default function BookingPage() {
         <title>Book Home Collection — Medipath Diagnostic Centre, Midnapore</title>
         <meta
           name="description"
-          content="Book a home sample collection from Medipath Diagnostic & Consultation Centre in Shekhpura, Midnapore. Blood tests, urine tests, pathology at budget-friendly rates. Dr. A.K. Maiti & Dr. Roma Basu Maiti."
+          content="Book a home sample collection from Medipath Diagnostic & Consultation Centre in MITRA COMPOUND, E/52,Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101. Blood tests, urine tests, pathology at budget-friendly rates. Dr. A.K. Maiti & Dr. Roma Basu Maiti."
         />
       </Helmet>
 
@@ -29,7 +29,7 @@ export default function BookingPage() {
               <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
                 {[
                   { icon: <Home size={15} />, text: 'Home Collection Available' },
-                  { icon: <Clock size={15} />, text: '7:30 AM – 8:00 PM (Closed Thu)' },
+                  { icon: <Clock size={15} />, text: 'Mon–Wed & Fri–Sun: 7:30 AM – 8:00 PM Closed on Thursdays' },
                   { icon: <Shield size={15} />, text: 'Dr. A.K. Maiti & Dr. Roma Basu Maiti' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.875rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
@@ -42,7 +42,7 @@ export default function BookingPage() {
               {/* Thursday warning */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.625rem', padding: '0.75rem 1rem', background: '#fffbeb', borderRadius: 'var(--radius)', border: '1px solid #fde68a', fontSize: '0.875rem', color: '#92400e' }}>
                 <AlertCircle size={15} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
-                <span><strong>Note:</strong> We are closed on Thursdays. For fasting tests (blood sugar, lipid), please call <a href="tel:+919083276651" style={{ color: 'var(--color-warning)', fontWeight: 700 }}>+91 90832 76651</a> to confirm preparation rules.</span>
+                <span><strong>Note:</strong> We are closed on Thursdays. For fasting tests (blood sugar, lipid), please call <a href="tel:+919083276651" style={{ color: 'var(--color-warning)', fontWeight: 700 }}>+91 9083276651 / 9083276652 / 03222-275238</a> to confirm preparation rules.</span>
               </div>
             </div>
           </div>

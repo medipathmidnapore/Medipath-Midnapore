@@ -34,7 +34,7 @@ const quickLinks = [
   },
   {
     title: 'Call Support',
-    desc: '+91 90832 76651',
+    desc: '+91 9083276651 / 9083276652 / 03222-275238',
     icon: PhoneCall,
     path: 'tel:+919083276651',
     isExternal: true,

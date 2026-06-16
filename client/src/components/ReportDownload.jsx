@@ -55,7 +55,7 @@ const STATUS_CONFIG = {
     title: 'Multiple Reports Found',
     borderColor: '#fde68a',
     titleColor: '#b45309',
-    defaultMessage: 'Multiple reports were found for your details. Please contact the Medipath reception at +91 90832 76651 for assistance.',
+    defaultMessage: 'Multiple reports were found for your details. Please contact the Medipath reception at +91 9083276651 / 9083276652 / 03222-275238 for assistance.',
   },
   REPORT_PENDING: {
     icon: <Clock size={28} />,
@@ -360,7 +360,7 @@ export default function ReportDownload() {
                 <p style={{ fontSize: '0.875rem', color: '#92400e', margin: 0 }}>
                   After payment, call the centre at{' '}
                   <a href="tel:+919083276651" style={{ color: 'var(--color-warning)', fontWeight: 700 }}>
-                    +91 90832 76651
+                    +91 9083276651 / 9083276652 / 03222-275238
                   </a>{' '}
                   with your transaction details to unlock your report.
                 </p>
@@ -386,7 +386,7 @@ export default function ReportDownload() {
                     <Phone size={16} style={{ flexShrink: 0, marginTop: '0.1rem', color: '#d97706' }} />
                     <p style={{ fontSize: '0.875rem', color: '#92400e', margin: 0 }}>
                       Please call the reception at{' '}
-                      <a href="tel:+919083276651" style={{ color: '#d97706', fontWeight: 700 }}>+91 90832 76651</a>{' '}
+                      <a href="tel:+919083276651" style={{ color: '#d97706', fontWeight: 700 }}>+91 9083276651 / 9083276652 / 03222-275238</a>{' '}
                       and provide your mobile number and collection date to get your specific report.
                     </p>
                   </div>
@@ -395,7 +395,7 @@ export default function ReportDownload() {
                 {(report.status === 'AUTH_FAIL' || report.status === 'TECH_FAIL') && (
                   <p style={{ fontSize: '0.8125rem', color: 'var(--color-text-light)', marginTop: '1rem' }}>
                     If the problem persists, please contact us at{' '}
-                    <a href="tel:+919083276651" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>+91 90832 76651</a>
+                    <a href="tel:+919083276651" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>+91 9083276651 / 9083276652 / 03222-275238</a>
                   </p>
                 )}
               </div>

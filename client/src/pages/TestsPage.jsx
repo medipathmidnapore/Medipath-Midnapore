@@ -195,7 +195,7 @@ export default function TestsPage() {
         <title>Tests & Pricing — Medipath Diagnostic Centre, Midnapore</title>
         <meta
           name="description"
-          content="Browse diagnostic tests and prices at Medipath Diagnostic & Consultation Centre, Shekhpura, Midnapore (WB 721101). Blood tests, urine tests, pathology — budget-friendly rates by Dr. A.K. Maiti & Dr. Roma Basu Maiti. Call +91 90832 76651."
+          content="Browse diagnostic tests and prices at Medipath Diagnostic & Consultation Centre, MITRA COMPOUND, E/52,Near RK Honda Service Center, Opposite Shib Mandir, Shekhpura, Paschim Midnapore, West Bengal -721101. Blood tests, urine tests, pathology — budget-friendly rates by Dr. A.K. Maiti & Dr. Roma Basu Maiti. Call +91 9083276651 / 9083276652 / 03222-275238."
         />
       </Helmet>
 
@@ -444,7 +444,7 @@ export default function TestsPage() {
                 <p>
                   Try a different search term or department. Or call us at{' '}
                   <a href="tel:+919083276651" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>
-                    +91 90832 76651
+                    +91 9083276651 / 9083276652 / 03222-275238
                   </a>{' '}
                   to enquire.
                 </p>
@@ -516,7 +516,7 @@ export default function TestsPage() {
                 </p>
                 <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   <Link to="/book" className="btn btn-primary btn-lg">Book Home Collection</Link>
-                  <a href="tel:+919083276651" className="btn btn-outline btn-lg">Call +91 90832 76651</a>
+                  <a href="tel:+919083276651" className="btn btn-outline btn-lg">Call +91 9083276651 / 9083276652 / 03222-275238</a>
                 </div>
               </div>
             )}
