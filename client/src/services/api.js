@@ -62,7 +62,7 @@ export const deleteAdminTest = (id) => api.delete(`/tests/${id}`);
 export const syncTestsFromMainServer = () => api.post('/tests/sync');
 
 // Notices
-export const fetchActiveNotices = () => api.get('/notices/active');
+export const fetchActiveNotices = () => api.get(`/notices/active?t=${new Date().getTime()}`);
 export const fetchAllNotices = () => api.get('/notices');
 export const createNotice = (data) => api.post('/notices', data);
 export const deleteNotice = (id) => api.delete(`/notices/${id}`);

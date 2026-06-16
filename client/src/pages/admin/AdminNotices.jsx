@@ -49,10 +49,12 @@ export default function AdminNotices() {
     }
     
     try {
-      await createNotice({
-        ...formData,
-        publishAt: publishAt.toISOString()
-      });
+      const payload = { ...formData };
+      if (formData.scheduleType !== 'now') {
+        payload.publishAt = publishAt.toISOString();
+      }
+
+      await createNotice(payload);
       setFormData({ title: '', content: '', type: 'nominal', scheduleType: 'now', customPublishAt: '', durationType: '1_week', customHours: '' });
       setShowForm(false);
       loadNotices();

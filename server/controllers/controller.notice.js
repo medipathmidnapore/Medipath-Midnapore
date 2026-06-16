@@ -14,6 +14,7 @@ export const getActiveNotices = async (req, res) => {
       ]
     }).sort({ createdAt: -1 });
 
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.status(200).json({ success: true, data: notices });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
