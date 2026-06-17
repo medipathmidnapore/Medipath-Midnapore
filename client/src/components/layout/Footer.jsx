@@ -140,7 +140,7 @@ export default function Footer() {
 
               {/* Google Maps Link */}
               <a
-                href="https://maps.google.com/?q=MITRA+COMPOUND+E/52+Near+RK+Honda+Service+Center+Opposite+Shib+Mandir+Shekhpura+Paschim+Midnapore+West+Bengal+721101"
+                href="https://maps.app.goo.gl/5jJGFMCohnSF1jnx9"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
