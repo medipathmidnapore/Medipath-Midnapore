@@ -546,7 +546,9 @@ function TestCard({ test }) {
             </span>
           </div>
           <div className="test-card-price">
-            <span className="test-card-price-value">₹{test.price}</span>
+            <span className="test-card-price-value">
+              {!test.price || test.price === 0 || test.price === 1 || test.price === '0' || test.price === '1' ? <span style={{ fontSize: '0.75rem', lineHeight: '1.2', display: 'inline-block' }}>Contact<br/>Reception</span> : `₹${test.price}`}
+            </span>
           </div>
         </div>
         {test.description && (

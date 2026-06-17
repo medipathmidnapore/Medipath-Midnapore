@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, FileDown, Lock, AlertTriangle, CheckCircle, QrCode, Phone, Clock, Calendar, AlertCircle, ServerCrash, ShieldAlert, FileQuestion } from 'lucide-react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { lookupReport } from '../services/api';
@@ -120,30 +120,31 @@ export default function ReportDownload() {
   const [report, setReport] = useState(null);
   const [error, setError] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState(null);
+  const [countdown, setCountdown] = useState(null);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    setError('');
-    setReport(null);
+  const fetchReportData = async (isAutoRefresh = false) => {
+    if (!isAutoRefresh) {
+      setError('');
+      setReport(null);
+      setCountdown(null);
+    }
 
-    // Validate mobile
     if (!mobile.trim() || mobile.trim().length < 10) {
-      setError('Please enter a valid 10-digit mobile number.');
+      if (!isAutoRefresh) setError('Please enter a valid 10-digit mobile number.');
       return;
     }
 
-    // Validate collection date
     if (!collectionDate.trim()) {
-      setError('Please select your Collection Date.');
+      if (!isAutoRefresh) setError('Please select your Collection Date.');
       return;
     }
 
     if (!recaptchaToken) {
-      setError('Please complete the CAPTCHA verification.');
+      if (!isAutoRefresh) setError('Please complete the CAPTCHA verification.');
       return;
     }
 
-    setStatus('loading');
+    if (!isAutoRefresh) setStatus('loading');
 
     try {
       const res = await lookupReport({
@@ -151,13 +152,46 @@ export default function ReportDownload() {
         collectionDate: collectionDate.trim(),
         recaptchaToken,
       });
-      setReport(res.data.data);
+      const fetchedReport = res.data.data;
+      setReport(fetchedReport);
       setStatus('found');
+
+      if (fetchedReport.status === 'PAYMENT_PENDING' || fetchedReport.status === 'REPORT_PENDING') {
+        const waitSeconds = fetchedReport.qrWait && !isNaN(parseInt(fetchedReport.qrWait, 10)) 
+          ? parseInt(fetchedReport.qrWait, 10) 
+          : 300;
+        setCountdown(waitSeconds);
+      } else {
+        setCountdown(null);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Failed to fetch report. Please try again.');
-      setStatus('error');
+      if (!isAutoRefresh) {
+        setError(err.response?.data?.message || err.message || 'Failed to fetch report. Please try again.');
+        setStatus('error');
+      }
+      setCountdown(null);
     }
   };
+
+  const handleSearch = async (e) => {
+    if (e) e.preventDefault();
+    await fetchReportData(false);
+  };
+
+  useEffect(() => {
+    let timerId;
+    if (countdown !== null && countdown > 0) {
+      timerId = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setCountdown(null);
+      fetchReportData(true);
+    }
+    return () => {
+      if (timerId) clearInterval(timerId);
+    };
+  }, [countdown, mobile, collectionDate, recaptchaToken]);
 
   // Today's date for max attribute on date picker
   const today = new Date().toISOString().split('T')[0];
@@ -365,6 +399,11 @@ export default function ReportDownload() {
                   with your transaction details to unlock your report.
                 </p>
               </div>
+              {countdown !== null && countdown >= 0 && (
+                <div style={{ marginTop: '1.5rem', background: 'var(--color-primary-50)', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--color-primary-100)', color: 'var(--color-primary-dark)', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                  <Clock size={16} /> Auto-refreshing in {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+                </div>
+              )}
             </div>
           )}
 
@@ -397,6 +436,11 @@ export default function ReportDownload() {
                     If the problem persists, please contact us at{' '}
                     <a href="tel:+919083276651" style={{ color: 'var(--color-primary)', fontWeight: 600 }}>+91 9083276651 / 9083276652 / 03222-275238</a>
                   </p>
+                )}
+                {report.status === 'REPORT_PENDING' && countdown !== null && countdown >= 0 && (
+                  <div style={{ marginTop: '1.5rem', background: 'var(--color-primary-50)', padding: '0.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--color-primary-100)', color: 'var(--color-primary-dark)', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                    <Clock size={16} /> Auto-refreshing in {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+                  </div>
                 )}
               </div>
             );

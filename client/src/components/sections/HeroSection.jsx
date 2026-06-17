@@ -123,23 +123,28 @@ export default function HeroSection() {
             {/* In-House Histopathology Banner */}
             <div style={{ 
               background: 'var(--color-primary-50)', 
-              border: '1px solid var(--color-primary-100)', 
-              padding: '0.5rem 0.875rem', 
+              border: '2px solid var(--color-primary)', 
+              padding: '0.75rem 1.25rem', 
               borderRadius: '0.75rem', 
               display: 'inline-flex', 
               alignItems: 'center', 
-              gap: '0.5rem',
-              maxWidth: '100%'
+              gap: '0.75rem',
+              maxWidth: '100%',
+              boxShadow: '0 8px 25px -5px rgba(26,86,219,0.3)',
+              transform: 'scale(1.05)',
+              transformOrigin: 'center',
+              marginTop: '0.5rem',
+              animation: 'pulse 2s infinite'
             }}>
-              <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.3rem', borderRadius: '50%', display: 'flex' }}>
-                <Star size={13} fill="white" />
+              <div style={{ background: 'var(--color-primary)', color: 'white', padding: '0.4rem', borderRadius: '50%', display: 'flex' }}>
+                <Star size={16} fill="white" />
               </div>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontWeight: 800, color: 'var(--color-primary-dark)', fontSize: '0.8125rem', lineHeight: 1.2 }}>
-                  In-House Histopathology
+                <div style={{ fontWeight: 800, color: 'var(--color-primary-dark)', fontSize: '0.9rem', lineHeight: 1.2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                  Exclusive In-House Histopathology
                 </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--color-primary)', fontWeight: 600 }}>
-                  All biopsies performed in-house. No outsourcing!
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-primary)', fontWeight: 700 }}>
+                  The ONLY laboratory in Midnapore performing all biopsies in-house.
                 </div>
               </div>
             </div>

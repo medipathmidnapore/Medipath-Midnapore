@@ -87,7 +87,11 @@ export default function TestBookingWizard() {
 
   const isSelected = (id) => selectedTests.some((t) => t._id === id);
 
-  const totalAmount = selectedTests.reduce((sum, t) => sum + t.price, 0);
+  const totalAmount = selectedTests.reduce((sum, t) => {
+    const p = t.price;
+    if (!p || p === 0 || p === 1 || p === '0' || p === '1') return sum;
+    return sum + Number(p);
+  }, 0);
 
   // File Upload Handlers
   const validateAndSetFile = (f) => {
@@ -463,7 +467,7 @@ export default function TestBookingWizard() {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                           <div style={{ fontWeight: 700, color: selected ? 'var(--color-primary)' : 'var(--color-text)', fontSize: '1rem' }}>
-                            ₹{test.price}
+                            {!test.price || test.price === 0 || test.price === 1 || test.price === '0' || test.price === '1' ? <span style={{ fontSize: '0.75rem' }}>Contact Reception</span> : `₹${test.price}`}
                           </div>
                           <div
                             style={{
@@ -549,7 +553,9 @@ export default function TestBookingWizard() {
                     {selectedTests.map((t) => (
                       <div key={t._id} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--color-border-light)' }}>
                         <span style={{ fontSize: '0.9375rem' }}>{t.name}</span>
-                        <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>₹{t.price}</span>
+                        <span style={{ fontWeight: 600, color: 'var(--color-text)' }}>
+                          {!t.price || t.price === 0 || t.price === 1 || t.price === '0' || t.price === '1' ? <span style={{ fontSize: '0.75rem' }}>Contact Reception</span> : `₹${t.price}`}
+                        </span>
                       </div>
                     ))}
                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '0.75rem', fontWeight: 700, fontSize: '1.0625rem' }}>
