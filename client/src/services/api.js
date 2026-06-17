@@ -48,8 +48,11 @@ export const uploadPrescription = (formData, onUploadProgress) =>
   });
 export const fetchAdminPrescriptions = () => api.get('/prescriptions');
 
-// Reports (mobile + collectionDate lookup)
+// Reports — two-step OTP lockbox flow
+// Step 1: lookup → returns ticketId (for REPORT_READY) or status info
 export const lookupReport = (params) => api.get('/reports/lookup', { params });
+// Step 2: verify OTP with ticketId → returns reportUrl on success
+export const verifyReportOtp = (data) => api.post('/reports/verify-otp', data);
 export const createAdminReport = (data) => api.post('/reports', data);
 
 // Admin
