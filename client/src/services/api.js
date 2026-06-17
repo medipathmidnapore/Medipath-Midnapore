@@ -55,6 +55,7 @@ export const createAdminReport = (data) => api.post('/reports', data);
 // Admin
 export const adminLogin = (data) => api.post('/admin/login', data);
 export const fetchAdminBookings = () => api.get('/admin/bookings');
+export const syncAdminBooking = (id) => api.post(`/admin/bookings/${id}/sync`);
 
 export const createAdminTest = (data) => api.post('/tests', data);
 export const updateAdminTest = (id, data) => api.put(`/tests/${id}`, data);

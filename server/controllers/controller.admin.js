@@ -33,3 +33,66 @@ export const getAllBookings = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Sync booking to main server manually
+import { sendBooking } from '../utils/service.mainserver.js';
+
+export const syncBookingToMain = async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    if (booking.isSynced) {
+      return res.status(400).json({ success: false, message: 'Booking is already synced' });
+    }
+
+    // Build payload for main server
+    const payload = {
+      patientName: booking.patientName,
+      mobile: booking.mobile1,
+      mobile2: booking.mobile2 || '',
+      email: booking.email || '',
+      address: booking.address,
+      notes: booking.notes || '',
+      tests: '',
+    };
+
+    if (booking.tests && booking.tests.length > 0) {
+      payload.tests = booking.tests.map((t) => ({
+        testId: String(t.testId || ''),
+        name: String(t.name || ''),
+        price: String(t.price || ''),
+      }));
+      payload.totalAmount = String(booking.totalAmount);
+    }
+
+    if (booking.prescriptionUrl) {
+      payload.prescriptionUrl = booking.prescriptionUrl;
+      // Note: We don't have prescriptionExtension saved directly in the model natively,
+      // but the main server usually just accepts the URL anyway if it's already uploaded.
+    }
+
+    // Forward to main server
+    const mainResponse = await sendBooking(payload);
+
+    // Update sync status
+    booking.isSynced = true;
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Booking successfully synced to main server.',
+      data: booking,
+    });
+  } catch (error) {
+    console.error('Error syncing booking to main server:', error.message);
+    res.status(500).json({
+      success: false,
+      message: error.data?.message || 'Failed to sync booking to main server. Please check the proxy logs.',
+    });
+  }
+};

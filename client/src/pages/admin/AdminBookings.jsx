@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { fetchAdminBookings } from '../../services/api';
-import { Loader2, Calendar, User, Phone, MapPin } from 'lucide-react';
+import { fetchAdminBookings, syncAdminBooking } from '../../services/api';
+import { Loader2, Calendar, User, Phone, MapPin, RefreshCw, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export default function AdminBookings() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [syncingId, setSyncingId] = useState(null);
 
   useEffect(() => {
     loadBookings();
@@ -18,6 +19,19 @@ export default function AdminBookings() {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSync = async (id) => {
+    setSyncingId(id);
+    try {
+      await syncAdminBooking(id);
+      await loadBookings();
+      alert('Booking successfully synced to main server!');
+    } catch (err) {
+      alert(err.message || 'Failed to sync booking');
+    } finally {
+      setSyncingId(null);
     }
   };
 
@@ -41,7 +55,7 @@ export default function AdminBookings() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
                   <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-primary)', background: 'var(--color-primary-50)', padding: '0.25rem 0.5rem', borderRadius: 'var(--radius)' }}>
-                    {b.bookingId}
+                    {b.bookingId || b._id.substring(b._id.length - 6).toUpperCase()}
                   </span>
                   <span style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     <Calendar size={13} /> {new Date(b.createdAt).toLocaleString()}
@@ -62,6 +76,30 @@ export default function AdminBookings() {
                     <p style={{ fontSize: '0.9rem', color: 'var(--color-text)' }}>{b.notes}</p>
                   </div>
                 )}
+
+                {/* Sync Status Section */}
+                <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  {b.isSynced ? (
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-success)', background: 'var(--color-success-bg)', padding: '0.375rem 0.75rem', borderRadius: '1rem' }}>
+                      <CheckCircle size={14} /> Synced to Main Server
+                    </span>
+                  ) : (
+                    <>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', fontWeight: 600, color: 'var(--color-error)', background: 'var(--color-error-bg)', padding: '0.375rem 0.75rem', borderRadius: '1rem' }}>
+                        <AlertTriangle size={14} /> Unsynced
+                      </span>
+                      <button
+                        onClick={() => handleSync(b._id)}
+                        disabled={syncingId === b._id}
+                        className="btn btn-primary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', padding: '0.375rem 0.75rem', height: 'auto', minHeight: 'unset' }}
+                      >
+                        {syncingId === b._id ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+                        Retry Sync
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
 
               <div style={{ background: 'var(--color-bg-alt)', padding: '1rem', borderRadius: 'var(--radius)', minWidth: '220px' }}>

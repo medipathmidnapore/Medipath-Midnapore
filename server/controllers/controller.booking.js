@@ -83,12 +83,13 @@ export const createBooking = async (req, res) => {
     try {
       const mainResponse = await sendBooking(payload);
 
-      // Forwarding successful — delete from local proxy DB to keep it clean
-      await Booking.findByIdAndDelete(newBooking._id);
+      // Forwarding successful — update sync status
+      newBooking.isSynced = true;
+      await newBooking.save();
 
       res.status(201).json({
         success: true,
-        message: 'Booking forwarded successfully to the main server.',
+        message: 'Booking saved locally and forwarded successfully to the main server.',
         data: mainResponse,
       });
     } catch (fetchError) {
