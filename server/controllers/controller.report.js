@@ -77,13 +77,18 @@ export const lookupReport = async (req, res) => {
 
       const status = response?.status || 'TECH_FAIL';
       const fallbackMessage = STATUS_MESSAGES[status] || STATUS_MESSAGES.TECH_FAIL;
+      
+      // Prioritize the main server message if it exists and is not empty
+      const finalMessage = (response?.message && response.message.trim() !== '') 
+        ? response.message 
+        : fallbackMessage;
 
       return res.status(200).json({
         success: true,
         data: {
           status,
           reportUrl: response?.reportUrl || '',
-          message: response?.message || fallbackMessage,
+          message: finalMessage,
           qrSRC: response?.qrSRC || '',
           // Pass through any additional fields the main server might send
           ...(response?.api_type && { api_type: response.api_type }),
@@ -95,12 +100,16 @@ export const lookupReport = async (req, res) => {
       // If the main server returned a structured error, try to extract it
       if (fetchError.data && fetchError.data.status) {
         const status = fetchError.data.status;
+        const errMessage = (fetchError.data.message && fetchError.data.message.trim() !== '') 
+          ? fetchError.data.message 
+          : (STATUS_MESSAGES[status] || STATUS_MESSAGES.TECH_FAIL);
+
         return res.status(200).json({
           success: true,
           data: {
             status,
             reportUrl: fetchError.data.reportUrl || '',
-            message: fetchError.data.message || STATUS_MESSAGES[status] || STATUS_MESSAGES.TECH_FAIL,
+            message: errMessage,
             qrSRC: fetchError.data.qrSRC || '',
           },
         });
