@@ -49,13 +49,28 @@ export async function callMainServer(apiType, params = {}) {
   try {
     console.log(`[MainServer] → ${apiType} (POST)`, params);
 
+    let requestBody = params;
+    let requestContentType = 'application/json';
+
+    // The Main PHP Server expects form-urlencoded data for VERIFY_REPORT_DETAILS
+    if (apiType === API_TYPES.VERIFY_REPORT_DETAILS) {
+      requestContentType = 'application/x-www-form-urlencoded';
+      const formParams = new URLSearchParams();
+      for (const [key, value] of Object.entries(params)) {
+        formParams.append(key, value);
+      }
+      requestBody = formParams.toString();
+    } else {
+      requestBody = JSON.stringify(params);
+    }
+
     const response = await fetch(targetUrlWithParams, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': requestContentType,
         'x-webhook-secret': secretKey,
       },
-      body: JSON.stringify(params),
+      body: requestBody,
       signal: controller.signal,
     });
 
