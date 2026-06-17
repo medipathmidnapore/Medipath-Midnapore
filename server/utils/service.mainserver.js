@@ -38,23 +38,32 @@ export async function callMainServer(apiType, params = {}) {
     throw new Error('Main server URL or secret key is not configured in environment variables.');
   }
 
-  const targetUrlWithParams = `${targetUrl}?api_type=${apiType}`;
-  const bodyPayload = { ...params };
-  const bodyString = JSON.stringify(bodyPayload);
+  // Construct URL with api_type and all additional params
+  const urlObj = new URL(targetUrl);
+  urlObj.searchParams.append('api_type', apiType);
+  
+  if (params && typeof params === 'object') {
+    Object.entries(params).forEach(([key, value]) => {
+      // If the value is an object or array, it might need stringification, but usually GET params are strings
+      const paramValue = typeof value === 'object' ? JSON.stringify(value) : value;
+      urlObj.searchParams.append(key, paramValue);
+    });
+  }
+  
+  const targetUrlWithParams = urlObj.toString();
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    console.log(`[MainServer] → ${apiType}`, bodyPayload);
+    console.log(`[MainServer] → ${apiType} (GET)`, params);
 
     const response = await fetch(targetUrlWithParams, {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'x-webhook-secret': secretKey,
       },
-      body: bodyString,
       signal: controller.signal,
     });
 

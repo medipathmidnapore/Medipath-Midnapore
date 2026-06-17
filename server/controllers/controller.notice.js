@@ -65,7 +65,7 @@ export const createNotice = async (req, res) => {
       expiresAt,
       isActive: true
     });
-
+    z
     res.status(201).json({ success: true, data: notice });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
