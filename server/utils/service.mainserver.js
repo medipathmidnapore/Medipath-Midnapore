@@ -140,13 +140,10 @@ export async function fetchTestPrices() {
  * @returns {object}              { status, reportUrl, message, qrSRC, ... }
  */
 export async function verifyReport(mobile, collectionDate) {
-  // Convert yyyy-MM-dd to dd-MM-yyyy for the main PHP server
-  const [year, month, day] = collectionDate.split('-');
-  const formattedDate = `${day}-${month}-${year}`;
-
+  // Send date as yyyy-MM-dd — main server expects this format
   return callMainServer(API_TYPES.VERIFY_REPORT_DETAILS, {
     mobile,
-    collectionDate: formattedDate,
+    collectionDate,
   });
 }
 
