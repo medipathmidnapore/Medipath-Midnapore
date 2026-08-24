@@ -163,6 +163,54 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Agency Credit Section */}
+        <div className="!mt-14 !mb-8 w-full">
+          <div className="!relative group rounded-2xl p-[1px] overflow-hidden bg-gradient-to-r from-white/5 via-blue-500/30 to-white/5 hover:via-blue-500/50 transition-all duration-700 !max-w-5xl !mx-auto shadow-2xl shadow-blue-500/5">
+            {/* Animated shimmer effect behind the border */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-shimmer" />
+            
+            <div className="relative bg-[#0f172a]/90 backdrop-blur-xl rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 transition-all duration-500">
+              
+              {/* Left Side: Agency Name & Rating */}
+              <div className="flex flex-col !items-center !md:items-start text-center !md:text-left">
+                <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-blue-300/70 mb-2">Designed & Developed by</p>
+                <a href="https://aditya-web-agency.online/" target="_blank" rel="noopener noreferrer" className="group/agency inline-flex items-center gap-4 no-underline">
+                  <h3 className="font-serif !text-2xl !sm:text-3xl !font-semibold bg-gradient-to-r from-blue-200 via-white to-blue-400 bg-clip-text text-transparent transition-all duration-500 group-hover/agency:brightness-110 drop-shadow-sm">
+                    Aditya Web Agency
+                  </h3>
+                  <div className="w-8 h-[1px] bg-blue-400/50 group-hover/agency:w-16 transition-all duration-500 hidden sm:block"></div>
+                </a>
+                
+                {/* Google Reviews Badge */}
+                <div className="!mt-5 flex items-center gap-2.5 bg-white/5 border border-white/10 rounded-full !px-4 !py-2 shadow-inner">
+                  <span className="text-white/80 text-xs sm:text-sm font-medium tracking-wide">Website Designer in Midnapore</span>
+                  <div className="w-1 h-1 rounded-full bg-white/20 hidden sm:block"></div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-yellow-400 font-bold text-sm">5.0</span>
+                    <div className="flex -space-x-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} className="w-3.5 h-3.5 text-yellow-400 drop-shadow-[0_0_3px_rgba(251,191,36,0.6)]" fill="currentColor" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side: Contact Info */}
+              <div className="flex flex-col items-center md:items-end text-center !md:text-right !gap-4">
+                <a href="tel:+919476477956" className="inline-flex !items-center !justify-center !gap-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 text-white rounded-full !px-6 !py-3 transition-all duration-300 group/btn shadow-[0_0_15px_rgba(59,130,246,0.1)] hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+                  <Phone className="w-4 h-4 text-blue-400 group-hover/btn:scale-110 transition-transform" />
+                  <span className="!font-semibold tracking-wider !text-sm">+91 94764 77956</span>
+                </a>
+                <p className="text-[10px] uppercase tracking-[0.15em] text-white/40 max-w-[240px] leading-relaxed">
+                  Bhakat's Lodge, Khaprail Bazar, <br/>
+                  Habibpur, Phadi, Midnapore 721101
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Bottom Bar */}
         <div
           style={{
